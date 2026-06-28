@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SportsLive">
+<meta name="application-name" content="SportsLive">
+<meta name="theme-color" content="#1a56db">
+<meta name="msapplication-TileColor" content="#1a56db">
+<meta name="msapplication-TileImage" content="icons/icon-144.svg">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.svg">
+<link rel="icon" type="image/svg+xml" href="icons/icon-192.svg">
+<title>SportsLive — Toutes compétitions</title>
+<style>
+:root{--bg:#f0f3fa;--surface:#fff;--surface2:#f0f3fa;--border:#dde3f0;--text:#1a1f36;--text2:#7b8ab0;--text3:#aab4cc;--blue:#1a56db;--red:#e8192c;--gold:#f59e0b;--green:#10b981;--purple:#7c3aed;--shadow:0 2px 12px rgba(26,86,219,.08);--shadow-lg:0 8px 32px rgba(26,86,219,.13);--sidebar-w:260px;--r:12px}
+[data-theme=dark]{--bg:#0d1117;--surface:#161b27;--surface2:#0d1117;--border:#1e2a40;--text:#e8eaf6;--text2:#7b8ab0;--text3:#4b5a80;--shadow:0 2px 12px rgba(0,0,0,.3);--shadow-lg:0 8px 32px rgba(0,0,0,.4)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s}
+
+/* AUTH */
+.auth-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#0a0e1a 0%,#1a2744 50%,#0d1425 100%)}
+.auth-brand{display:flex;flex-direction:column;align-items:center;margin-bottom:24px}
+.auth-brand-icon{font-size:48px;margin-bottom:6px}
+.auth-brand-name{font-size:26px;font-weight:900;color:#fff;letter-spacing:1px}
+.auth-brand-sub{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:2px;margin-top:2px}
+.auth-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(16px);border-radius:20px;padding:28px 24px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.auth-card h2{font-size:18px;font-weight:800;color:#fff;margin-bottom:5px}
+.auth-card .sub{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:22px;line-height:1.5}
+.form-group{margin-bottom:13px}
+.form-group label{display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.form-group input,.form-group select{width:100%;padding:10px 13px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.11);border-radius:9px;color:#fff;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s;appearance:none}
+.form-group input::placeholder{color:rgba(255,255,255,.28)}
+.form-group input:focus,.form-group select:focus{border-color:rgba(26,86,219,.8);background:rgba(26,86,219,.1)}
+.form-group select option{background:#1a2744}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-primary{width:100%;padding:12px;background:linear-gradient(135deg,#1a56db,#2563eb);border:none;border-radius:9px;color:#fff;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;letter-spacing:.3px;font-family:inherit}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,86,219,.5)}
+.auth-switch{text-align:center;margin-top:16px;font-size:12px;color:rgba(255,255,255,.38)}
+.auth-switch a{color:rgba(100,160,255,.9);cursor:pointer;font-weight:700}
+.auth-msg{padding:9px 12px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:13px;display:none;line-height:1.4}
+.auth-msg.error{background:rgba(232,25,44,.15);border:1px solid rgba(232,25,44,.3);color:#ff6b7a}
+.auth-msg.success{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:#34d399}
+
+/* ADMIN */
+.admin-wrap{max-width:720px;margin:0 auto;padding:20px 16px 50px}
+.admin-header{background:linear-gradient(135deg,#1a56db,#7c3aed);border-radius:14px;padding:16px 18px;margin-bottom:16px;color:#fff;display:flex;align-items:center;gap:10px}
+.admin-header h1{font-size:18px;font-weight:800;flex:1}
+.badge-admin{background:rgba(255,255,255,.2);padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800}
+.btn-logout-admin{background:rgba(255,255,255,.15);border:none;padding:7px 14px;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.admin-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.astat{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px;text-align:center;box-shadow:var(--shadow)}
+.astat-val{font-size:24px;font-weight:900;color:var(--blue)}
+.astat-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.atabs{display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap}
+.atab{padding:7px 14px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);transition:all .2s}
+.atab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.nbadge{background:var(--red);color:#fff;border-radius:20px;padding:1px 6px;font-size:9px;margin-left:4px}
+.user-card{background:var(--surface);border:1.5px solid var(--border);border-radius:11px;padding:13px 14px;margin-bottom:9px;display:flex;align-items:center;gap:11px;box-shadow:var(--shadow)}
+.uavatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#1a56db,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;flex-shrink:0}
+.uinfo{flex:1;min-width:0}
+.uname{font-size:13px;font-weight:800;color:var(--text)}
+.umeta{font-size:10px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ustatus{font-size:8px;font-weight:800;padding:2px 7px;border-radius:5px;flex-shrink:0}
+.st-pending{background:rgba(245,158,11,.15);color:#d97706}
+.st-approved{background:rgba(16,185,129,.15);color:#10b981}
+.st-rejected{background:rgba(232,25,44,.12);color:var(--red)}
+.uactions{display:flex;gap:5px;flex-shrink:0}
+.btn-ok{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:#10b981;padding:5px 9px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-ok:hover{background:#10b981;color:#fff}
+.btn-no{background:rgba(232,25,44,.1);border:1px solid rgba(232,25,44,.25);color:var(--red);padding:5px 9px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-no:hover{background:var(--red);color:#fff}
+.btn-del{background:rgba(0,0,0,.04);border:1px solid var(--border);color:var(--text3);padding:5px 8px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-del:hover{background:var(--red);border-color:var(--red);color:#fff}
+.empty-st{text-align:center;padding:36px 20px;color:var(--text3);font-size:13px}
+
+/* APP LAYOUT */
+.app-layout{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;transition:transform .3s;z-index:200}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.sidebar-brand{display:flex;align-items:center;gap:10px;padding:16px 14px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sidebar-logo{flex-shrink:0;display:flex;align-items:center}
+.sidebar-brand-text{font-size:15px;font-weight:900;color:var(--text)}
+.sidebar-brand-sub{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:1px}
+.sidebar-section{padding:10px 10px 2px}
+.sidebar-section-label{font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;padding:0 4px 6px;display:flex;align-items:center;gap:5px}
+.sidebar-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:9px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:all .18s;margin-bottom:2px;position:relative}
+.sidebar-item:hover{background:var(--surface2);color:var(--text)}
+.sidebar-item.active{background:rgba(26,86,219,.1);color:var(--blue);font-weight:800}
+.sidebar-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--blue);border-radius:3px}
+.sidebar-item-icon{flex-shrink:0;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.sidebar-item-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulse 1.5s infinite;flex-shrink:0}
+.sidebar-bottom{margin-top:auto;border-top:1px solid var(--border);padding:10px;flex-shrink:0}
+.sidebar-user{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:9px;background:var(--surface2);margin-bottom:8px}
+.sidebar-user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#1a56db,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0}
+.sidebar-user-info{flex:1;min-width:0}
+.sidebar-user-name{font-size:11px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-user-role{font-size:9px;color:var(--text3)}
+.sidebar-actions{display:flex;gap:6px}
+.sicon-btn{flex:1;padding:8px 6px;border:1.5px solid var(--border);border-radius:9px;background:var(--surface);font-size:13px;cursor:pointer;transition:all .2s;text-align:center;display:flex;align-items:center;justify-content:center}
+.sicon-btn:hover{border-color:var(--blue);background:rgba(26,86,219,.06)}
+.sicon-btn svg{pointer-events:none}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199}
+@media(max-width:768px){
+  .app-layout{flex-direction:column}
+  .sidebar{position:fixed;top:0;left:0;height:100vh;transform:translateX(-100%);box-shadow:var(--shadow-lg)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block}
+  .main-content{height:100vh}
+  .topbar-menu-btn{display:block!important}
+}
+.main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{display:flex;align-items:center;gap:10px;padding:11px 16px;background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow);flex-shrink:0}
+.topbar-menu-btn{display:none;font-size:20px;cursor:pointer;padding:4px;border-radius:7px}
+.topbar-title{font-size:16px;font-weight:800;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-sub{font-size:10px;color:var(--text2);margin-top:1px}
+.live-badge{background:var(--red);color:#fff;font-size:8px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:1.5px;animation:pulse 1.5s infinite;white-space:nowrap}
+.icon-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.icon-btn:hover{border-color:var(--blue);transform:scale(1.08)}
+.content-scroll{flex:1;overflow-y:auto;padding:14px 16px 40px}
+.content-scroll::-webkit-scrollbar{width:5px}
+.content-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px}
+
+/* GLOBAL STATS */
+.global-stats{display:flex;gap:10px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.global-stats::-webkit-scrollbar{display:none}
+.gstat{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;gap:1px;flex-shrink:0;box-shadow:var(--shadow)}
+.gstat-val{font-size:18px;font-weight:900;color:var(--blue);line-height:1}
+.gstat-label{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+
+/* SEARCH */
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--border);border-radius:11px;padding:9px 12px;margin-bottom:10px;box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s}
+.search-bar:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.search-bar input{flex:1;border:none;outline:none;font-size:13px;color:var(--text);background:transparent;font-family:inherit}
+.search-bar input::placeholder{color:var(--text3)}
+.search-clear{color:var(--text3);cursor:pointer;font-size:12px;display:none;padding:3px 5px;border-radius:50%}
+
+/* FILTER PILLS */
+.filter-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.fpill{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);transition:all .2s;white-space:nowrap;user-select:none}
+.fpill.active,.fpill:hover{border-color:var(--blue);color:var(--blue)}
+.fpill.active{background:var(--blue);color:#fff}
+.fpill.q-qualified{border-color:#10b981;color:#10b981;background:rgba(16,185,129,.08)}
+.fpill.q-qualified.active{background:#10b981;color:#fff;border-color:#10b981}
+.fpill.q-danger{border-color:#d97706;color:#d97706;background:rgba(245,158,11,.08)}
+.fpill.q-danger.active{background:#d97706;color:#fff;border-color:#d97706}
+.fpill.q-out{border-color:var(--red);color:var(--red);background:rgba(232,25,44,.06)}
+.fpill.q-out.active{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* MATCH CARDS */
+.matches-grid{display:grid;gap:10px}
+.match-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s,border-color .2s;animation:cardIn .35s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.match-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--blue)}
+.match-card.big-score{border-color:var(--gold);box-shadow:0 0 0 2px rgba(245,158,11,.15),var(--shadow-lg)}
+.big-score .match-top{background:linear-gradient(90deg,rgba(245,158,11,.08),var(--surface2))}
+.match-top{display:flex;align-items:center;justify-content:space-between;padding:7px 13px;font-size:9px;color:var(--text2);font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:var(--surface2);border-bottom:1px solid var(--border);gap:6px;flex-wrap:wrap}
+.match-top-left{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.match-top-right{display:flex;align-items:center;gap:5px}
+.comp-badge{background:var(--border);padding:2px 7px;border-radius:5px;font-size:8px;font-weight:800;color:var(--text2)}
+.tv-badge{display:flex;align-items:center;gap:3px;border:1px solid var(--border);padding:2px 7px;border-radius:5px;font-size:8px;font-weight:800;white-space:nowrap}
+.tv-tf1{border-color:#003189;color:#003189;background:rgba(0,49,137,.07)}
+.tv-tmc{border-color:#e4002b;color:#e4002b;background:rgba(228,0,43,.07)}
+.tv-m6{border-color:#e68000;color:#c06800;background:rgba(255,153,0,.09)}
+[data-theme=dark] .tv-tf1{background:rgba(0,49,137,.2);color:#7eb8ff}
+[data-theme=dark] .tv-tmc{background:rgba(228,0,43,.2);color:#ff9aa2}
+[data-theme=dark] .tv-m6{background:rgba(255,153,0,.15);color:#f59e0b}
+.status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.status-dot.final{background:var(--text3)}
+.status-dot.scheduled{background:var(--gold);animation:pulse 1.5s infinite}
+.status-dot.live{background:var(--red);animation:pulse .8s infinite}
+
+/* MATCH BODY */
+.match-body{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 13px 10px;gap:6px}
+.team{display:flex;flex-direction:column;align-items:center;gap:4px}
+
+/* LOGO équipe : image ou fallback emoji */
+.team-logo-wrap{position:relative;width:52px;height:52px;display:flex;align-items:center;justify-content:center}
+.team-logo-img{width:48px;height:48px;object-fit:contain;border-radius:6px;transition:transform .2s;display:block}
+.team-logo-img:hover{transform:scale(1.12)}
+.team-logo-flag{font-size:38px;line-height:1;transition:transform .2s;display:block}
+.team-logo-flag:hover{transform:scale(1.12)}
+.team-name{font-size:11px;font-weight:800;text-align:center;color:var(--text);max-width:95px;line-height:1.25;word-break:break-word;margin-top:2px}
+.team-name.winner{color:var(--blue)}
+.qual-badge{font-size:8px;font-weight:800;padding:1px 5px;border-radius:4px;letter-spacing:.3px;margin-top:1px}
+.qb-qualified{background:rgba(16,185,129,.15);color:#10b981}
+.qb-danger{background:rgba(245,158,11,.15);color:#d97706}
+.qb-out{background:rgba(232,25,44,.12);color:var(--red)}
+
+.score-block{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:80px}
+.score{font-size:34px;font-weight:900;letter-spacing:2px;color:var(--text);line-height:1}
+.score-sep{color:var(--border);font-size:18px;margin:0 1px}
+.score-live{font-size:10px;color:var(--red);font-weight:800;animation:pulse .8s infinite;margin-top:2px;display:flex;align-items:center;gap:4px;justify-content:center}
+.score.live-score{animation:scorePulse 1s ease infinite}
+@keyframes scorePulse{0%,100%{opacity:1}50%{opacity:.7}}
+.live-indicator{display:flex;align-items:center;gap:6px;background:rgba(232,25,44,.08);border:1px solid rgba(232,25,44,.2);border-radius:8px;padding:5px 10px;margin-bottom:10px;font-size:11px;color:var(--red);font-weight:700}
+.live-indicator .dot{width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulse .8s infinite;flex-shrink:0}
+.score-upcoming{display:flex;align-items:center;justify-content:center;gap:4px}
+.score-dash{font-size:34px;font-weight:900;color:var(--border);line-height:1}
+.score-sep-upcoming{font-size:28px;font-weight:900;color:var(--border);margin:0 2px}
+.upcoming-time{font-size:20px;font-weight:900;color:var(--gold);letter-spacing:2px;text-align:center}
+.upcoming-date{font-size:9px;color:var(--text3);text-align:center;margin-top:2px}
+
+/* STATS */
+.poss-row{padding:0 13px 5px;border-top:1px solid var(--border);padding-top:7px}
+.poss-label{display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-bottom:3px}
+.poss-bar{height:3px;background:var(--border);border-radius:3px;overflow:hidden;display:flex}
+.poss-h{background:var(--blue)}.poss-a{background:var(--red);flex:1}
+
+/* GOALS 2 colonnes */
+.goals-2col{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border)}
+.goals-home,.goals-away{display:flex;flex-direction:column;gap:4px;padding:8px 10px}
+.goals-home{border-right:1px solid var(--border)}
+.goals-col-label{font-size:9px;font-weight:800;color:var(--text2);margin-bottom:5px;display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.goal-item{display:flex;align-items:center;gap:5px;font-size:11px}
+.goals-away .goal-item{flex-direction:row-reverse;text-align:right}
+.goal-time{background:var(--surface2);color:var(--text2);padding:2px 5px;border-radius:4px;font-weight:800;font-size:9px;min-width:28px;text-align:center;flex-shrink:0}
+.goal-flag{font-size:12px;flex-shrink:0}
+.goal-scorer{color:var(--text);font-weight:600;font-size:11px;line-height:1.3}
+.goal-scorer.ts{color:var(--blue);font-weight:800}
+.goal-scorer.ts::after{content:' ⭐';font-size:9px}
+.no-goals{color:var(--text3);font-size:10px;font-style:italic;padding:4px 0}
+.match-footer{border-top:1px solid var(--border);padding:7px 13px}
+.proba-wrap{padding:4px 0 0}
+.proba-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-bottom:4px;font-weight:700}
+.proba-bar{display:flex;height:5px;border-radius:5px;overflow:hidden;gap:1px}
+.proba-h{background:var(--blue);border-radius:5px 0 0 5px}
+.proba-d{background:var(--text3)}
+.proba-a{background:var(--red);border-radius:0 5px 5px 0;flex:1}
+
+/* TOP SCORER — classement 10 */
+.top-scorer-card{background:linear-gradient(135deg,#1a56db,#7c3aed);border-radius:12px;padding:12px 14px;margin-bottom:12px;box-shadow:0 4px 16px rgba(26,86,219,.3)}
+.ts-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;color:#fff}
+.ts-icon{font-size:20px;flex-shrink:0}
+.ts-label{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;opacity:.85}
+.ts-sublabel{font-size:9px;opacity:.55;margin-top:1px}
+.ts-refresh-badge{margin-left:auto;background:rgba(255,255,255,.15);padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap}
+.ts-refresh-badge:hover{background:rgba(255,255,255,.25)}
+.ts-list{display:flex;flex-direction:column;gap:0}
+.ts-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;transition:background .15s}
+.ts-row:hover{background:rgba(255,255,255,.1)}
+.ts-row:not(:last-child){border-bottom:1px solid rgba(255,255,255,.08)}
+.ts-rank{font-size:13px;min-width:22px;text-align:center;flex-shrink:0}
+.ts-pname{flex:1;font-size:12px;font-weight:700;color:#fff}
+.ts-goals{font-size:12px;font-weight:900;color:#fff;background:rgba(255,255,255,.18);padding:2px 8px;border-radius:20px;flex-shrink:0}
+
+/* COUNTDOWN refresh */
+.refresh-countdown{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text3);padding:5px 10px;background:var(--surface);border-radius:8px;border:1px solid var(--border);margin-bottom:10px}
+.countdown-bar{flex:1;height:3px;background:var(--border);border-radius:3px;overflow:hidden}
+.countdown-fill{height:100%;background:var(--blue);border-radius:3px;transition:width 1s linear}
+.countdown-live{color:var(--red);font-weight:700}
+
+/* LAST UPDATE */
+.last-update-bar{display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:10px;padding:6px 10px;background:var(--surface);border-radius:8px;border:1px solid var(--border)}
+
+/* GENERIC CARDS */
+.generic-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow);transition:transform .2s,border-color .2s;animation:cardIn .35s ease both;margin-bottom:10px}
+.generic-card:hover{transform:translateY(-1px);border-color:var(--blue)}
+.gc-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.gc-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.gc-icon svg{width:32px;height:32px}
+.gc-title{font-size:14px;font-weight:800;color:var(--text)}
+.gc-sub{font-size:10px;color:var(--text2);margin-top:1px}
+.gc-badge{margin-left:auto;font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;flex-shrink:0}
+.gc-live{background:rgba(232,25,44,.12);color:var(--red)}
+.gc-done{background:rgba(16,185,129,.12);color:#10b981}
+.gc-soon{background:rgba(245,158,11,.12);color:#d97706}
+.gc-body{display:flex;flex-direction:column;gap:6px}
+.gc-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)}
+.gc-row strong{color:var(--text);font-weight:700}
+.gc-row .pos{font-size:14px;min-width:22px}
+.gc-divider{height:1px;background:var(--border);margin:2px 0}
+
+/* MISC */
+.highlight{background:#fff3cd;border-radius:3px;padding:0 2px;font-weight:800;color:#b45309}
+[data-theme=dark] .highlight{background:rgba(245,158,11,.25);color:#fbbf24}
+.no-results{text-align:center;padding:50px 20px;color:var(--text3);font-size:13px}
+.no-results-icon{font-size:38px;margin-bottom:10px}
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden}
+.confetto{position:absolute;animation:confettiFall linear forwards}
+@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin .8s linear infinite!important}
+
+/* STANDINGS */
+.standing-card{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:4px}
+.standing-header{background:linear-gradient(135deg,#1a56db,#7c3aed);color:#fff;padding:8px 14px;font-size:12px;font-weight:800;letter-spacing:.5px}
+.standing-table{width:100%;border-collapse:collapse;font-size:11px}
+.standing-table th{padding:6px 8px;text-align:center;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2)}
+.standing-table td{padding:7px 8px;text-align:center;color:var(--text2);border-bottom:1px solid var(--border)}
+.standing-table tbody tr:last-child td{border-bottom:none}
+.team-cell{text-align:left!important;display:flex;align-items:center;gap:5px;font-weight:600;color:var(--text);white-space:nowrap}
+.tf{font-size:14px}
+.qualified-row td{background:rgba(16,185,129,.04)}
+.qualified-row .pts-cell{color:#10b981;font-weight:900}
+.danger-row td{background:rgba(245,158,11,.04)}
+.pos-diff{color:#10b981;font-weight:700}
+.neg-diff{color:var(--red);font-weight:700}
+.pts-cell{font-weight:900;color:var(--blue)}
+.match-modal{position:fixed;inset:0;z-index:10000;display:none;align-items:flex-end;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+.modal-inner{background:var(--surface);border-radius:20px 20px 0 0;width:100%;max-height:90vh;overflow-y:auto;padding:0 0 40px;position:relative}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:4px;margin:12px auto 16px}
+.modal-close{position:absolute;top:12px;right:16px;font-size:20px;cursor:pointer;color:var(--text2);padding:4px 8px;border-radius:8px;background:var(--surface2)}
+.modal-score-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 16px 16px;gap:8px;text-align:center}
+.modal-flag{font-size:40px;display:block;margin-bottom:6px}
+.modal-tname{font-size:12px;font-weight:800;color:var(--text)}
+.modal-score{font-size:42px;font-weight:900;color:var(--text);letter-spacing:2px;line-height:1}
+.modal-status{font-size:10px;color:var(--text2);margin-top:4px;font-weight:600}
+.modal-comp{font-size:9px;color:var(--text3);margin-top:2px}
+.modal-section{border-top:1px solid var(--border);padding:14px 16px}
+.modal-section-title{font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.modal-stat-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.msr-val{font-size:13px;font-weight:800;color:var(--text);min-width:32px;text-align:center}
+.msr-val.right{text-align:right}
+.msr-center{flex:1}
+.msr-label{font-size:9px;color:var(--text3);text-align:center;margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px}
+.msr-bar{height:4px;background:var(--border);border-radius:4px;overflow:hidden;display:flex}
+.msr-h{background:var(--blue)}.msr-a{background:var(--red)}
+.share-btn{display:flex;align-items:center;gap:6px;padding:9px 14px;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;font-size:12px;font-weight:700;color:var(--text);cursor:pointer;font-family:inherit;transition:all .2s}
+.share-btn:hover{border-color:var(--blue);color:var(--blue)}
+.prono-score-input{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:4px}
+.prono-team-side{display:flex;align-items:center;gap:8px}
+.prono-tflag{font-size:24px}
+.prono-input{width:48px;height:48px;text-align:center;font-size:20px;font-weight:900;border:2px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);font-family:inherit;outline:none}
+.prono-input:focus{border-color:var(--blue)}
+.prono-community{margin-top:10px}
+.prono-bar-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2);margin-bottom:5px}
+.prono-bar-row span:first-child{min-width:70px;font-weight:600}
+.prono-bar-row span:last-child{min-width:32px;text-align:right;font-weight:700}
+.prono-bar{flex:1;height:6px;background:var(--border);border-radius:4px;overflow:hidden}
+.history-card{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;cursor:pointer;transition:all .2s}
+.history-card:hover{border-color:var(--blue);transform:translateY(-1px)}
+.history-teams{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.history-team{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--text);flex:1}
+.history-team.right{justify-content:flex-end}
+.history-score{font-size:18px;font-weight:900;color:var(--text);letter-spacing:1px;flex-shrink:0}
+.history-meta{font-size:10px;color:var(--text3);text-align:center}
+.sidebar-divider{height:1px;background:var(--border);margin:6px 10px}
+
+</style>
+</head>
+<body>
+<div id="confetti-container" class="confetti-container"></div>
+
+<!-- AUTH LOGIN -->
+<div id="screen-login" class="auth-wrap">
+  <div class="auth-brand">
+    <div class="auth-brand-icon">🏟️</div>
+    <div class="auth-brand-name">SportsLive</div>
+    <div class="auth-brand-sub">Tous les sports · Toutes compétitions</div>
+  </div>
+  <div class="auth-card">
+    <h2>Connexion</h2>
+    <div class="sub">Espace réservé aux membres.</div>
+    <div class="auth-msg" id="login-msg"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="votre@email.com" autocomplete="email"></div>
+    <div class="form-group"><label>Mot de passe</label><input type="password" id="login-pwd" placeholder="••••••••"></div>
+    <button class="btn-primary" onclick="doLogin()">Se connecter →</button>
+    <div class="auth-switch">Pas encore membre ? <a onclick="showScreen('register')">Créer un compte</a></div>
+  </div>
+</div>
+
+<!-- AUTH REGISTER -->
+<div id="screen-register" class="auth-wrap" style="display:none">
+  <div class="auth-brand">
+    <div class="auth-brand-icon">🏟️</div>
+    <div class="auth-brand-name">SportsLive</div>
+    <div class="auth-brand-sub">Inscription</div>
+  </div>
+  <div class="auth-card">
+    <h2>Créer un compte</h2>
+    <div class="sub">Accès immédiat après inscription.</div>
+    <div class="auth-msg" id="reg-msg"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Prénom</label><input type="text" id="reg-fn" placeholder="Jean"></div>
+      <div class="form-group"><label>Nom</label><input type="text" id="reg-ln" placeholder="Dupont"></div>
+    </div>
+    <div class="form-group"><label>Email</label><input type="email" id="reg-em" placeholder="votre@email.com"></div>
+    <div class="form-group"><label>Mot de passe</label><input type="password" id="reg-pw" placeholder="Minimum 6 caractères"></div>
+    <div class="form-group">
+      <label>Pays</label>
+      <select id="reg-co">
+        <option value="">-- Ton pays --</option>
+        <option>France</option><option>Belgique</option><option>Suisse</option><option>Canada</option>
+        <option>Maroc</option><option>Sénégal</option><option>Côte d'Ivoire</option><option>Tunisie</option>
+        <option>Algérie</option><option>Cameroun</option><option>Mali</option><option>Congo</option>
+        <option>Espagne</option><option>Angleterre</option><option>Allemagne</option><option>Portugal</option>
+        <option>Italie</option><option>Brésil</option><option>Argentine</option><option>États-Unis</option>
+        <option>Autre</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="doRegister()">Créer mon compte →</button>
+    <div class="auth-switch">Déjà membre ? <a onclick="showScreen('login')">Se connecter</a></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="screen-admin" style="display:none">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <span style="font-size:22px">⚙️</span>
+      <h1>Panel Admin</h1>
+      <span class="badge-admin">ADMIN</span>
+      <button class="btn-logout-admin" onclick="doLogout()">Déconnexion</button>
+    </div>
+    <div class="admin-stats" id="admin-stats"></div>
+    <div class="atabs">
+      <div class="atab active" onclick="aTab('pending',this)">⏳ En attente <span class="nbadge" id="np">0</span></div>
+      <div class="atab" onclick="aTab('approved',this)">✅ Approuvés</div>
+      <div class="atab" onclick="aTab('rejected',this)">❌ Refusés</div>
+    </div>
+    <div id="admin-list"></div>
+    <div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--border)">
+      <button class="btn-primary" onclick="showScreen('app')" style="max-width:200px">▶ Accéder à SportsLive</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<!-- MODAL DÉTAIL MATCH -->
+<div id="match-modal" class="match-modal" onclick="if(event.target===this)closeMatchDetail()">
+  <div class="modal-inner">
+    <div class="modal-handle"></div>
+    <span class="modal-close" onclick="closeMatchDetail()">✕</span>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div id="screen-app" style="display:none;height:100vh">
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-logo">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#1a56db"/><circle cx="17" cy="17" r="10" stroke="#fff" stroke-width="2" fill="none"/><path d="M10 11c3.5 2.5 3.5 9 0 12M24 11c-3.5 2.5-3.5 9 0 12M7 17h20" stroke="#fff" stroke-width="1.5"/></svg>
+      </span>
+      <div>
+        <div class="sidebar-brand-text">SportsLive</div>
+        <div class="sidebar-brand-sub">Multi-sports</div>
+      </div>
+    </div>
+
+    <!-- FOOTBALL -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 3c0 0-3 4-3 9s3 9 3 9M12 3c0 0 3 4 3 9s-3 9-3 9M3 12h18" stroke="currentColor" stroke-width="1.5"/></svg>
+        Football
+      </div>
+      <div class="sidebar-item active" id="nav-cdm" onclick="loadLeague('cdm','Coupe du Monde 2026',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#1a56db" opacity=".12" stroke="#1a56db" stroke-width="1.5"/><path d="M12 3.5c0 0-2.8 4-2.8 8.5s2.8 8.5 2.8 8.5M12 3.5c0 0 2.8 4 2.8 8.5s-2.8 8.5-2.8 8.5M3 12h18" stroke="#1a56db" stroke-width="1.2"/></svg></span>
+        <span class="sidebar-item-name">Coupe du Monde</span>
+        <span class="live-dot"></span>
+      </div>
+      <div class="sidebar-item" id="nav-ucl" onclick="loadLeague('ucl','Ligue des Champions',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2L9.5 8.5H3l5.3 3.8-2 6.2L12 14.5l5.7 4-2-6.2L21 8.5h-6.5L12 2z" fill="#1a3a8a" stroke="#1a3a8a" stroke-width="0.3" stroke-linejoin="round"/></svg></span>
+        <span class="sidebar-item-name">Ligue des Champions</span>
+      </div>
+      <div class="sidebar-item" id="nav-uel" onclick="loadLeague('uel','Europa League',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#f97316" opacity=".12" stroke="#f97316" stroke-width="1.5"/><path d="M12 6l1.8 4.5H18l-3.5 2.5 1.3 4L12 14.5 8.2 17l1.3-4L6 10.5h4.2L12 6z" fill="#f97316"/></svg></span>
+        <span class="sidebar-item-name">Europa League</span>
+      </div>
+      <div class="sidebar-item" id="nav-l1" onclick="loadLeague('l1','Ligue 1',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="5" height="16" rx="1.5" fill="#002395"/><rect x="9.5" y="4" width="5" height="16" fill="#fff" stroke="#dde3f0" stroke-width=".5"/><rect x="16" y="4" width="5" height="16" rx="1.5" fill="#ED2939"/></svg></span>
+        <span class="sidebar-item-name">Ligue 1</span>
+      </div>
+      <div class="sidebar-item" id="nav-pl" onclick="loadLeague('pl','Premier League',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect width="22" height="22" x="1" y="1" rx="5" fill="#3d195b" opacity=".1"/><path d="M12 3l2.2 5.5H20l-4.8 3.5 1.8 5.5L12 14 7 17.5l1.8-5.5L4 8.5h5.8L12 3z" fill="#3d195b"/><circle cx="12" cy="12" r="2.5" fill="#00ff85"/></svg></span>
+        <span class="sidebar-item-name">Premier League</span>
+      </div>
+      <div class="sidebar-item" id="nav-liga" onclick="loadLeague('liga','LaLiga',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="3" fill="#ee8700" opacity=".12" stroke="#ee8700" stroke-width="1.5"/><text x="12" y="16.5" text-anchor="middle" font-size="9" font-weight="900" fill="#ee8700" font-family="Arial,sans-serif">LA</text></svg></span>
+        <span class="sidebar-item-name">LaLiga</span>
+      </div>
+      <div class="sidebar-item" id="nav-bl" onclick="loadLeague('bl','Bundesliga',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#d20515" opacity=".1" stroke="#d20515" stroke-width="1.5"/><text x="12" y="16" text-anchor="middle" font-size="8" font-weight="900" fill="#d20515" font-family="Arial,sans-serif">BL</text></svg></span>
+        <span class="sidebar-item-name">Bundesliga</span>
+      </div>
+      <div class="sidebar-item" id="nav-sa" onclick="loadLeague('sa','Serie A',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" fill="#0066cc" opacity=".1" stroke="#0066cc" stroke-width="1.5"/><text x="12" y="16" text-anchor="middle" font-size="8" font-weight="900" fill="#0066cc" font-family="Arial,sans-serif">SA</text></svg></span>
+        <span class="sidebar-item-name">Serie A</span>
+      </div>
+    </div>
+
+    <!-- BASKET -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M5 7c4 2 4 8 0 10M19 7c-4 2-4 8 0 10M2 12h20" stroke="currentColor" stroke-width="1.5"/></svg>
+        Basketball
+      </div>
+      <div class="sidebar-item" id="nav-nba" onclick="loadLeague('nba','NBA',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#c8102e" opacity=".1" stroke="#c8102e" stroke-width="1.5"/><path d="M5 8c3 1.5 3 7 0 8M19 8c-3 1.5-3 7 0 8M3 12h18" stroke="#1d428a" stroke-width="1.5"/></svg></span>
+        <span class="sidebar-item-name">NBA</span>
+      </div>
+      <div class="sidebar-item" id="nav-euro" onclick="loadLeague('euro','Euroleague',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#003da5" opacity=".1" stroke="#003da5" stroke-width="1.5"/><path d="M5 8c3 1.5 3 7 0 8M19 8c-3 1.5-3 7 0 8M3 12h18" stroke="#003da5" stroke-width="1.5"/></svg></span>
+        <span class="sidebar-item-name">Euroleague</span>
+      </div>
+    </div>
+
+    <!-- TENNIS -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M5 5c4 4 4 10 0 14M19 5c-4 4-4 10 0 14" stroke="currentColor" stroke-width="1.5"/></svg>
+        Tennis
+      </div>
+      <div class="sidebar-item" id="nav-ro" onclick="loadLeague('ro','Roland-Garros',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#c8702a" opacity=".12" stroke="#c8702a" stroke-width="1.5"/><path d="M5 6c4 3 4 9 0 12M19 6c-4 3-4 9 0 12" stroke="#c8702a" stroke-width="1.2"/></svg></span>
+        <span class="sidebar-item-name">Roland-Garros</span>
+      </div>
+      <div class="sidebar-item" id="nav-wim" onclick="loadLeague('wim','Wimbledon',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#006633" opacity=".12" stroke="#006633" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="#fff" stroke="#006633" stroke-width="1"/></svg></span>
+        <span class="sidebar-item-name">Wimbledon</span>
+      </div>
+      <div class="sidebar-item" id="nav-uso" onclick="loadLeague('uso','US Open',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#002868" opacity=".1" stroke="#002868" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="#BF0A30" opacity=".7"/></svg></span>
+        <span class="sidebar-item-name">US Open</span>
+      </div>
+      <div class="sidebar-item" id="nav-ao" onclick="loadLeague('ao','Australian Open',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#009FDF" opacity=".12" stroke="#009FDF" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="#009FDF" opacity=".6"/></svg></span>
+        <span class="sidebar-item-name">Australian Open</span>
+      </div>
+    </div>
+
+    <!-- RUGBY -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="12" rx="9" ry="6" stroke="currentColor" stroke-width="2"/><line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.5"/></svg>
+        Rugby
+      </div>
+      <div class="sidebar-item" id="nav-top14" onclick="loadLeague('top14','Top 14',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="12" rx="8" ry="5" fill="#002395" opacity=".1" stroke="#002395" stroke-width="1.5"/><line x1="4" y1="12" x2="20" y2="12" stroke="#002395" stroke-width="1.2"/></svg></span>
+        <span class="sidebar-item-name">Top 14</span>
+      </div>
+      <div class="sidebar-item" id="nav-6n" onclick="loadLeague('6n','6 Nations',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="12" rx="8" ry="5" fill="#1a56db" opacity=".1" stroke="#1a56db" stroke-width="1.5"/><text x="12" y="15.5" text-anchor="middle" font-size="7" font-weight="900" fill="#1a56db" font-family="Arial,sans-serif">6N</text></svg></span>
+        <span class="sidebar-item-name">6 Nations</span>
+      </div>
+      <div class="sidebar-item" id="nav-cwc" onclick="loadLeague('cwc','Coupe du Monde Rugby',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="12" rx="8" ry="5" fill="#8B4513" opacity=".12" stroke="#8B4513" stroke-width="1.5"/><path d="M12 7v10" stroke="#8B4513" stroke-width="1.2"/></svg></span>
+        <span class="sidebar-item-name">Coupe du Monde</span>
+      </div>
+    </div>
+
+    <!-- F1 -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="2" y="10" width="20" height="5" rx="2.5" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="15" r="2" fill="currentColor"/><circle cx="17" cy="15" r="2" fill="currentColor"/></svg>
+        Formule 1
+      </div>
+      <div class="sidebar-item" id="nav-f1" onclick="loadLeague('f1','Formule 1 · Saison 2026',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="10" width="20" height="5" rx="2.5" fill="#e10600" opacity=".12" stroke="#e10600" stroke-width="1.5"/><circle cx="7" cy="15" r="2.5" fill="#222" stroke="#e10600" stroke-width="1"/><circle cx="17" cy="15" r="2.5" fill="#222" stroke="#e10600" stroke-width="1"/></svg></span>
+        <span class="sidebar-item-name">Saison 2026</span>
+      </div>
+    </div>
+
+    <!-- JO -->
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="6" cy="9" r="3" stroke="#0085c7" stroke-width="1.5"/><circle cx="12" cy="9" r="3" stroke="#000" stroke-width="1.5"/><circle cx="18" cy="9" r="3" stroke="#df0024" stroke-width="1.5"/><circle cx="9" cy="14" r="3" stroke="#f4c300" stroke-width="1.5"/><circle cx="15" cy="14" r="3" stroke="#009f3d" stroke-width="1.5"/></svg>
+        Athlétisme / JO
+      </div>
+      <div class="sidebar-item" id="nav-jo" onclick="loadLeague('jo','JO Los Angeles 2028',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="7" cy="9" r="3" stroke="#0085c7" stroke-width="1.5" fill="none"/><circle cx="12" cy="9" r="3" stroke="#222" stroke-width="1.5" fill="none"/><circle cx="17" cy="9" r="3" stroke="#df0024" stroke-width="1.5" fill="none"/><circle cx="9.5" cy="13.5" r="3" stroke="#f4c300" stroke-width="1.5" fill="none"/><circle cx="14.5" cy="13.5" r="3" stroke="#009f3d" stroke-width="1.5" fill="none"/></svg></span>
+        <span class="sidebar-item-name">JO Los Angeles 2028</span>
+      </div>
+      <div class="sidebar-item" id="nav-dm" onclick="loadLeague('dm','Mondiaux Athlétisme',this)">
+        <span class="sidebar-item-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="2.5" fill="#f59e0b"/><path d="M12 7.5v5.5M9.5 10l-2.5 4M14.5 10l2.5 4M10 18.5l2-3 2 3" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+        <span class="sidebar-item-name">Mondiaux Athlétisme</span>
+      </div>
+    </div>
+
+    <!-- BOTTOM -->
+    <div class="sidebar-bottom">
+      <div class="sidebar-user" id="sidebar-user"></div>
+      <div class="sidebar-actions">
+        <div class="sicon-btn" id="refresh-btn" onclick="refreshData()" title="Actualiser">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-6.36-2.64L3 21"/><path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.36 2.64L21 3"/><polyline points="21 3 21 9 15 9"/><polyline points="3 21 3 15 9 15"/></svg>
+        </div>
+        <div class="sicon-btn" onclick="toggleTheme()" id="theme-btn" title="Thème">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </div>
+        <!-- DÉCONNEXION : porte avec flèche -->
+        <div class="sicon-btn" onclick="doLogout()" title="Déconnexion">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <div class="topbar">
+      <span class="topbar-menu-btn" onclick="toggleSidebar()">☰</span>
+      <div style="flex:1;min-width:0">
+        <div class="topbar-title" id="topbar-title">Coupe du Monde 2026</div>
+        <div class="topbar-sub" id="topbar-sub">Phase de groupes · Live & résultats</div>
+      </div>
+      <div class="live-badge">● LIVE</div>
+    </div>
+
+    <div class="content-scroll" id="content-scroll">
+      <div id="last-update-bar" class="last-update-bar" style="display:none">
+        <span id="last-update-text">—</span>
+        <span style="font-size:11px;cursor:pointer;color:var(--blue)" onclick="refreshData()">Actualiser</span>
+      </div>
+      <div id="refresh-countdown-bar" class="refresh-countdown" style="display:none"></div>
+      <div id="top-scorer-banner" style="display:none"></div>
+      <div class="global-stats" id="global-stats" style="display:none"></div>
+      <div class="filter-row" id="filter-row" style="display:none"></div>
+      <div class="search-bar" id="search-bar" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="search-input" placeholder="Rechercher pays, joueur, groupe, chaîne…" oninput="onSearch()" autocomplete="off">
+        <span class="search-clear" id="search-clear" onclick="clearSearch()">✕</span>
+      </div>
+      <div id="search-info" style="font-size:11px;color:var(--text2);margin-bottom:6px;min-height:14px"></div>
+      <div id="content-area"></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   AUTH
+══════════════════════════════════════ */
+const ADMIN_EMAIL='armand@admin.cdm';
+const ADMIN_PASS='Admin2026!';
+const getUsers=()=>JSON.parse(localStorage.getItem('sl_users')||'[]');
+const saveUsers=u=>localStorage.setItem('sl_users',JSON.stringify(u));
+const getSession=()=>JSON.parse(localStorage.getItem('sl_session')||'null');
+const saveSession=s=>localStorage.setItem('sl_session',JSON.stringify(s));
+const clearSession=()=>localStorage.removeItem('sl_session');
+
+function showScreen(name){
+  ['login','register','admin','app'].forEach(s=>{
+    const el=document.getElementById('screen-'+s);
+    if(el)el.style.display=s===name?(s==='app'?'block':''):'none';
+  });
+  if(name==='admin')renderAdminList('pending');
+  if(name==='app')initApp();
+}
+function showMsg(id,txt,type){
+  const el=document.getElementById(id);
+  el.textContent=txt;el.className='auth-msg '+type;el.style.display='block';
+  setTimeout(()=>{el.style.display='none'},5000);
+}
+function hashPass(p){let h=0;for(let i=0;i<p.length;i++)h=Math.imul(31,h)+p.charCodeAt(i)|0;return h.toString(36)+'_'+p.length}
+
+function doLogin(){
+  const em=document.getElementById('login-email').value.trim().toLowerCase();
+  const pw=document.getElementById('login-pwd').value;
+  if(!em||!pw){showMsg('login-msg','Remplis tous les champs.','error');return}
+  if(em===ADMIN_EMAIL&&pw===ADMIN_PASS){saveSession({email:em,role:'admin',name:'Admin'});showScreen('admin');return}
+  const u=getUsers().find(u=>u.email===em);
+  if(!u){showMsg('login-msg','Aucun compte trouvé.','error');return}
+  if(u.hash!==hashPass(pw)){showMsg('login-msg','Mot de passe incorrect.','error');return}
+  if(u.status==='rejected'){showMsg('login-msg','Accès refusé. Contacte l\'admin.','error');return}
+  saveSession({email:em,role:'user',name:u.firstname+' '+u.lastname,country:u.country});
+  showScreen('app');
+}
+function doRegister(){
+  const fn=document.getElementById('reg-fn').value.trim();
+  const ln=document.getElementById('reg-ln').value.trim();
+  const em=document.getElementById('reg-em').value.trim().toLowerCase();
+  const pw=document.getElementById('reg-pw').value;
+  const co=document.getElementById('reg-co').value;
+  if(!fn||!ln||!em||!pw||!co){showMsg('reg-msg','Remplis tous les champs.','error');return}
+  if(pw.length<6){showMsg('reg-msg','Mot de passe trop court (min. 6 caractères).','error');return}
+  if(!/\S+@\S+\.\S+/.test(em)){showMsg('reg-msg','Email invalide.','error');return}
+  const users=getUsers();
+  if(users.find(u=>u.email===em)){showMsg('reg-msg','Email déjà utilisé.','error');return}
+  users.push({id:Date.now().toString(36),firstname:fn,lastname:ln,email:em,hash:hashPass(pw),country:co,status:'approved',createdAt:new Date().toISOString()});
+  saveUsers(users);
+  saveSession({email:em,role:'user',name:fn+' '+ln,country:co});
+  showMsg('reg-msg','Compte créé ! Bienvenue 🎉','success');
+  setTimeout(()=>showScreen('app'),900);
+}
+function doLogout(){clearSession();showScreen('login')}
+
+/* ADMIN */
+let adminTab_='pending';
+function aTab(t,el){adminTab_=t;document.querySelectorAll('.atab').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderAdminList(t)}
+function renderAdminStats(){
+  const u=getUsers();const p=u.filter(x=>x.status==='pending').length;const a=u.filter(x=>x.status==='approved').length;
+  const nb=document.getElementById('np');if(nb)nb.textContent=p;
+  const as=document.getElementById('admin-stats');
+  if(as)as.innerHTML=`<div class="astat"><div class="astat-val">${u.length}</div><div class="astat-label">Total</div></div><div class="astat"><div class="astat-val" style="color:var(--green)">${a}</div><div class="astat-label">Approuvés</div></div><div class="astat"><div class="astat-val" style="color:var(--gold)">${p}</div><div class="astat-label">En attente</div></div>`;
+}
+function renderAdminList(tab){
+  renderAdminStats();
+  const users=getUsers().filter(u=>u.status===tab);
+  const c=document.getElementById('admin-list');if(!c)return;
+  if(!users.length){c.innerHTML=`<div class="empty-st">📭 Aucun utilisateur ici</div>`;return}
+  c.innerHTML=users.map(u=>`<div class="user-card"><div class="uavatar">${u.firstname[0]}${u.lastname[0]}</div><div class="uinfo"><div class="uname">${u.firstname} ${u.lastname}</div><div class="umeta">${u.email} · ${u.country} · ${new Date(u.createdAt).toLocaleDateString('fr-FR')}</div></div><span class="ustatus st-${u.status}">${u.status==='pending'?'⏳':u.status==='approved'?'✅':'❌'}</span><div class="uactions">${u.status!=='approved'?`<button class="btn-ok" onclick="updUser('${u.id}','approved')">✅</button>`:''} ${u.status!=='rejected'?`<button class="btn-no" onclick="updUser('${u.id}','rejected')">❌</button>`:''}<button class="btn-del" onclick="delUser('${u.id}')">🗑</button></div></div>`).join('');
+}
+function updUser(id,s){const u=getUsers();const x=u.find(u=>u.id===id);if(x){x.status=s;saveUsers(u);renderAdminList(adminTab_)}}
+function delUser(id){if(!confirm('Supprimer ?'))return;saveUsers(getUsers().filter(u=>u.id!==id));renderAdminList(adminTab_)}
+
+/* ══════════════════════════════════════
+   DONNÉES
+══════════════════════════════════════ */
+
+/* Drapeaux emoji par code ISO */
+const FLAGS={
+  FR:'🇫🇷',GB:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',DE:'🇩🇪',ES:'🇪🇸',IT:'🇮🇹',PT:'🇵🇹',NL:'🇳🇱',BE:'🇧🇪',
+  AR:'🇦🇷',BR:'🇧🇷',UY:'🇺🇾',US:'🇺🇸',CA:'🇨🇦',MX:'🇲🇽',MA:'🇲🇦',SN:'🇸🇳',TN:'🇹🇳',
+  DZ:'🇩🇿',CM:'🇨🇲',CI:'🇨🇮',GH:'🇬🇭',NG:'🇳🇬',EG:'🇪🇬',ZA:'🇿🇦',CD:'🇨🇩',
+  JP:'🇯🇵',KR:'🇰🇷',AU:'🇦🇺',NZ:'🇳🇿',CN:'🇨🇳',IR:'🇮🇷',SA:'🇸🇦',
+  CH:'🇨🇭',AT:'🇦🇹',SE:'🇸🇪',NO:'🇳🇴',DK:'🇩🇰',PL:'🇵🇱',CZ:'🇨🇿',GR:'🇬🇷',
+  TR:'🇹🇷',HR:'🇭🇷',RS:'🇷🇸',PA:'🇵🇦',CO:'🇨🇴',CV:'🇨🇻',IQ:'🇮🇶',UZ:'🇺🇿',JO:'🇯🇴',PY:'🇵🇾'
+};
+
+/* Logos clubs via logo.clearbit ou shield wikipedia — utilise un SVG générique coloré par club */
+const CLUB_COLORS={
+  'Paris Saint-Germain':{bg:'#004170',accent:'#DA291C'},
+  'Marseille':{bg:'#2FAEE0',accent:'#fff'},
+  'Monaco':{bg:'#DA291C',accent:'#fff'},
+  'Olympique Lyonnais':{bg:'#1a56db',accent:'#c8102e'},
+  'Real Madrid':{bg:'#FEBE10',accent:'#00529F'},
+  'Barcelona':{bg:'#004D98',accent:'#A50044'},
+  'Atlético Madrid':{bg:'#CC0000',accent:'#fff'},
+  'Manchester City':{bg:'#6CABDD',accent:'#1C2C5B'},
+  'Arsenal':{bg:'#EF0107',accent:'#063672'},
+  'Liverpool':{bg:'#C8102E',accent:'#00B2A9'},
+  'Chelsea':{bg:'#034694',accent:'#034694'},
+  'Bayern Munich':{bg:'#DC052D',accent:'#0066B2'},
+  'Borussia Dortmund':{bg:'#FDE100',accent:'#000'},
+  'Juventus':{bg:'#000',accent:'#fff'},
+  'Inter Milan':{bg:'#010E80',accent:'#000'},
+  'AS Roma':{bg:'#8E1F2F',accent:'#F5C518'},
+  'Fenerbahçe':{bg:'#003399',accent:'#FFFF00'},
+  'Oklahoma City Thunder':{bg:'#007AC1',accent:'#EF3B24'},
+  'Boston Celtics':{bg:'#007A33',accent:'#BA9653'},
+  'Stade Toulousain':{bg:'#000',accent:'#EF3340'},
+  'Racing 92':{bg:'#6EC6F5',accent:'#002147'},
+  'Leinster':{bg:'#003DA5',accent:'#fff'},
+};
+
+function clubLogo(name,size=40){
+  const c=CLUB_COLORS[name];
+  if(!c)return null;
+  const init=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  return `<svg width="${size}" height="${size}" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 2L36 8V22C36 30 28 37 20 39C12 37 4 30 4 22V8L20 2Z" fill="${c.bg}"/>
+    <text x="20" y="26" text-anchor="middle" font-size="13" font-weight="900" fill="${c.accent}" font-family="Arial,sans-serif">${init}</text>
+  </svg>`;
+}
+
+function teamLogo(m,side){
+  const name=side==='home'?m.home:m.away;
+  const flag=side==='home'?m.homeFlag:m.awayFlag;
+  const logo=clubLogo(name);
+  if(logo)return `<div class="team-logo-wrap">${logo}</div>`;
+  return `<span class="team-logo-flag">${flag||'🏳️'}</span>`;
+}
+
+/* Données statiques CDM */
+const CDM_STATIC=[
+  // ── GROUPE J ──
+  {id:'s1',home:'Norvège',homeFlag:'🇳🇴',homeISO:'NOR',away:'France',awayFlag:'🇫🇷',awayISO:'FRA',
+   scoreH:1,scoreA:4,status:'final',date:'26 Juin · 21:00',comp:'Groupe J',tv:{cls:'tv-tf1',l:'TF1'},
+   stats:{hP:43,aP:57,hS:10,aS:19,hC:4,aC:5},
+   goals:[{t:7,flag:'🇫🇷',name:'Kylian Mbappé'},{t:20,flag:'🇫🇷',name:'Michael Olise'},{t:21,flag:'🇳🇴',name:'J. Strand Larsen'},{t:32,flag:'🇫🇷',name:'Ousmane Dembélé'},{t:90,flag:'🇫🇷',name:'Désiré Doué'}]},
+  {id:'s2',home:'Sénégal',homeFlag:'🇸🇳',homeISO:'SEN',away:'Irak',awayFlag:'🇮🇶',awayISO:'IRQ',
+   scoreH:5,scoreA:0,status:'final',date:'26 Juin · 21:00',comp:'Groupe J',tv:{cls:'tv-tmc',l:'TMC'},
+   stats:{hP:55,aP:45,hS:22,aS:6,hC:9,aC:3},
+   goals:[{t:15,flag:'🇸🇳',name:'Ismaïla Sarr'},{t:28,flag:'🇸🇳',name:'Sadio Mané'},{t:45,flag:'🇸🇳',name:'Boulaye Dia'},{t:62,flag:'🇸🇳',name:'Ismaïla Sarr'},{t:88,flag:'🇸🇳',name:'Lamine Camara'}]},
+
+  // ── GROUPE H ──
+  {id:'s3',home:'Uruguay',homeFlag:'🇺🇾',homeISO:'URU',away:'Espagne',awayFlag:'🇪🇸',awayISO:'ESP',
+   scoreH:0,scoreA:1,status:'final',date:'27 Juin · 02:00',comp:'Groupe H',tv:{cls:'tv-tf1',l:'TF1'},
+   stats:{hP:32,aP:68,hS:6,aS:15,hC:3,aC:7},
+   goals:[{t:42,flag:'🇪🇸',name:'Lamine Yamal'}]},
+  {id:'s4',home:'Cap-Vert',homeFlag:'🇨🇻',homeISO:'CPV',away:'Arabie Saoudite',awayFlag:'🇸🇦',awayISO:'KSA',
+   scoreH:0,scoreA:0,status:'final',date:'27 Juin · 02:00',comp:'Groupe H',tv:{cls:'tv-tmc',l:'TMC'},
+   stats:{hP:48,aP:52,hS:8,aS:10,hC:4,aC:5},goals:[]},
+
+  // ── GROUPE G ──
+  {id:'s5',home:'Nouvelle-Zélande',homeFlag:'🇳🇿',homeISO:'NZL',away:'Belgique',awayFlag:'🇧🇪',awayISO:'BEL',
+   scoreH:1,scoreA:5,status:'final',date:'27 Juin · 05:00',comp:'Groupe G',tv:{cls:'tv-m6',l:'M6'},
+   stats:{hP:45,aP:55,hS:6,aS:33,hC:5,aC:8},
+   goals:[{t:28,flag:'🇧🇪',name:'Charles De Ketelaere'},{t:50,flag:'🇧🇪',name:'Kevin De Bruyne'},{t:66,flag:'🇧🇪',name:'Leandro Trossard'},{t:84,flag:'🇳🇿',name:'Chris Wood'},{t:86,flag:'🇧🇪',name:'Jérémy Doku'},{t:90,flag:'🇧🇪',name:'Jérémy Doku'}]},
+  {id:'s6',home:'Égypte',homeFlag:'🇪🇬',homeISO:'EGY',away:'Iran',awayFlag:'🇮🇷',awayISO:'IRN',
+   scoreH:1,scoreA:1,status:'final',date:'27 Juin · 05:00',comp:'Groupe G',tv:{cls:'tv-tmc',l:'TMC'},
+   stats:{hP:51,aP:49,hS:12,aS:9,hC:6,aC:4},
+   goals:[{t:45,flag:'🇪🇬',name:'Mohamed Salah (pen.)'},{t:67,flag:'🇮🇷',name:'Sardar Azmoun'}]},
+
+  // ── GROUPE C ──
+  {id:'s7',home:'Tunisie',homeFlag:'🇹🇳',homeISO:'TUN',away:'Pays-Bas',awayFlag:'🇳🇱',awayISO:'NED',
+   scoreH:1,scoreA:3,status:'final',date:'26 Juin · 01:00',comp:'Groupe C',tv:{cls:'tv-tf1',l:'TF1'},
+   stats:{hP:38,aP:62,hS:8,aS:18,hC:3,aC:7},
+   goals:[{t:22,flag:'🇳🇱',name:'Memphis Depay'},{t:45,flag:'🇳🇱',name:'Cody Gakpo'},{t:65,flag:'🇹🇳',name:'Youssef Msakni'},{t:82,flag:'🇳🇱',name:'Xavi Simons'}]},
+  {id:'s8',home:'Japon',homeFlag:'🇯🇵',homeISO:'JPN',away:'Suède',awayFlag:'🇸🇪',awayISO:'SWE',
+   scoreH:1,scoreA:1,status:'final',date:'26 Juin · 01:00',comp:'Groupe C',tv:{cls:'tv-tmc',l:'TMC'},
+   stats:{hP:47,aP:53,hS:11,aS:13,hC:5,aC:6},
+   goals:[{t:34,flag:'🇯🇵',name:'Takumi Minamino'},{t:78,flag:'🇸🇪',name:'Alexander Isak'}]},
+
+  // ── GROUPE D ──
+  {id:'s9',home:'Turquie',homeFlag:'🇹🇷',homeISO:'TUR',away:'États-Unis',awayFlag:'🇺🇸',awayISO:'USA',
+   scoreH:3,scoreA:2,status:'final',date:'26 Juin · 04:00',comp:'Groupe D',tv:{cls:'tv-tf1',l:'TF1'},
+   stats:{hP:44,aP:56,hS:14,aS:16,hC:6,aC:7},
+   goals:[{t:12,flag:'🇹🇷',name:'Hakan Çalhanoğlu'},{t:38,flag:'🇺🇸',name:'Christian Pulisic'},{t:51,flag:'🇹🇷',name:'Arda Güler'},{t:63,flag:'🇺🇸',name:'Folarin Balogun'},{t:80,flag:'🇹🇷',name:'Kerem Aktürkoğlu'}]},
+  {id:'s10',home:'Paraguay',homeFlag:'🇵🇾',homeISO:'PAR',away:'Australie',awayFlag:'🇦🇺',awayISO:'AUS',
+   scoreH:0,scoreA:0,status:'final',date:'26 Juin · 04:00',comp:'Groupe D',tv:{cls:'tv-tmc',l:'TMC'},
+   stats:{hP:50,aP:50,hS:7,aS:8,hC:4,aC:4},goals:[]},
+
+  // ── GROUPE L ──
+  {id:'s11',home:'Panama',homeFlag:'🇵🇦',homeISO:'PAN',away:'Angleterre',awayFlag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',awayISO:'ENG',
+   scoreH:0,scoreA:2,status:'final',date:'27 Juin · 23:00',comp:'Groupe L',tv:{cls:'tv-tf1',l:'TF1'},
+   stats:{hP:32,aP:68,hS:9,aS:17,hC:3,aC:7},
+   goals:[{t:62,flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',name:'Jude Bellingham'},{t:67,flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',name:'Harry Kane'}]},
+  {id:'s12',home:'Croatie',homeFlag:'🇭🇷',homeISO:'CRO',away:'Ghana',awayFlag:'🇬🇭',awayISO:'GHA',
+   scoreH:2,scoreA:1,status:'final',date:'27 Juin · 23:00',comp:'Groupe L',tv:{cls:'tv-tmc',l:'TMC'},
+   stats:{hP:53,aP:47,hS:8,aS:6,hC:3,aC:2},
+   goals:[{t:31,flag:'🇭🇷',name:'Ante Budimir'},{t:73,flag:'🇬🇭',name:'Jordan Ayew'},{t:83,flag:'🇭🇷',name:'Andrej Kramaric'}]},
+
+  // ── GROUPE I ──
+  {id:'s13',home:'Colombie',homeFlag:'🇨🇴',homeISO:'COL',away:'Portugal',awayFlag:'🇵🇹',awayISO:'POR',
+   scoreH:0,scoreA:0,status:'final',date:'28 Juin · 01:30',comp:'Groupe I',tv:{cls:'tv-tf1',l:'TF1'},
+   stats:{hP:55,aP:45,hS:26,aS:13,hC:5,aC:2},goals:[]},
+  {id:'s14',home:'RD Congo',homeFlag:'🇨🇩',homeISO:'COD',away:'Ouzbékistan',awayFlag:'🇺🇿',awayISO:'UZB',
+   scoreH:3,scoreA:1,status:'final',date:'28 Juin · 01:30',comp:'Groupe I',tv:{cls:'tv-m6',l:'M6'},
+   stats:{hP:58,aP:42,hS:19,aS:3,hC:2,aC:4},
+   goals:[{t:10,flag:'🇺🇿',name:'Eldor Shomurodov'},{t:68,flag:'🇨🇩',name:'Yoane Wissa'},{t:78,flag:'🇨🇩',name:'Cédric Bakambu'},{t:90,flag:'🇨🇩',name:'Yoane Wissa'}]},
+
+  // ── GROUPE E ──
+  {id:'s15',home:'Jordanie',homeFlag:'🇯🇴',homeISO:'JOR',away:'Argentine',awayFlag:'🇦🇷',awayISO:'ARG',
+   scoreH:1,scoreA:3,status:'final',date:'28 Juin · 04:00',comp:'Groupe E',tv:{cls:'tv-tf1',l:'TF1'},
+   stats:{hP:30,aP:70,hS:5,aS:13,hC:2,aC:6},
+   goals:[{t:19,flag:'🇦🇷',name:'Julián Álvarez'},{t:31,flag:'🇦🇷',name:'Julián Álvarez'},{t:55,flag:'🇯🇴',name:'Ali Olwan'},{t:80,flag:'🇦🇷',name:'Lionel Messi'}]},
+  {id:'s16',home:'Algérie',homeFlag:'🇩🇿',homeISO:'DZA',away:'Autriche',awayFlag:'🇦🇹',awayISO:'AUT',
+   scoreH:3,scoreA:3,status:'final',date:'28 Juin · 04:00',comp:'Groupe E',tv:{cls:'tv-tmc',l:'TMC'},
+   stats:{hP:60,aP:40,hS:11,aS:11,hC:0,aC:3},
+   goals:[{t:28,flag:'🇦🇹',name:'Marko Arnautovic'},{t:45,flag:'🇩🇿',name:'Riyad Mahrez'},{t:55,flag:'🇦🇹',name:'Marcel Sabitzer'},{t:60,flag:'🇩🇿',name:'Amine Gouiri'},{t:90,flag:'🇩🇿',name:'Riyad Mahrez'},{t:90,flag:'🇦🇹',name:'Marko Arnautovic'}]},
+
+  // ── GROUPE F ──
+  {id:'s17',home:'Afrique du Sud',homeFlag:'🇿🇦',homeISO:'RSA',away:'Canada',awayFlag:'🇨🇦',awayISO:'CAN',
+   scoreH:0,scoreA:0,status:'scheduled',date:'28 Juin · 21:00',comp:'Groupe F',tv:{cls:'tv-m6',l:'M6'},
+   prob:{home:16.5,draw:24.7,away:58.8}},
+
+  // ── GROUPE B ──
+  {id:'s18',home:'Brésil',homeFlag:'🇧🇷',homeISO:'BRA',away:'Japon',awayFlag:'🇯🇵',awayISO:'JPN',
+   scoreH:0,scoreA:0,status:'scheduled',date:'29 Juin · 19:00',comp:'Groupe B',tv:{cls:'tv-tf1',l:'TF1'},
+   prob:{home:57.1,draw:24.8,away:18.1}},
+  {id:'s19',home:'Allemagne',homeFlag:'🇩🇪',homeISO:'GER',away:'Paraguay',awayFlag:'🇵🇾',awayISO:'PAR',
+   scoreH:0,scoreA:0,status:'scheduled',date:'29 Juin · 22:30',comp:'Groupe B',tv:{cls:'tv-m6',l:'M6'},
+   prob:{home:71.0,draw:18.2,away:10.8}},
+
+  // ── GROUPE C suite ──
+  {id:'s20',home:'Pays-Bas',homeFlag:'🇳🇱',homeISO:'NED',away:'Maroc',awayFlag:'🇲🇦',awayISO:'MAR',
+   scoreH:0,scoreA:0,status:'scheduled',date:'30 Juin · 03:00',comp:'Groupe C',tv:{cls:'tv-tmc',l:'TMC'},
+   prob:{home:45.2,draw:29.5,away:25.3}},
+
+  // ── NOUVEAUX MATCHS récupérés ──
+  {id:'s21',home:'Côte d\'Ivoire',homeFlag:'🇨🇮',homeISO:'CIV',away:'Norvège',awayFlag:'🇳🇴',awayISO:'NOR',
+   scoreH:0,scoreA:0,status:'scheduled',date:'30 Juin · 19:00',comp:'Groupe J',tv:{cls:'tv-tf1',l:'TF1'},
+   prob:{home:26.8,draw:26.9,away:46.3}},
+  {id:'s22',home:'France',homeFlag:'🇫🇷',homeISO:'FRA',away:'Suède',awayFlag:'🇸🇪',awayISO:'SWE',
+   scoreH:0,scoreA:0,status:'scheduled',date:'30 Juin · 23:00',comp:'Groupe J',tv:{cls:'tv-tf1',l:'TF1'},
+   prob:{home:75.7,draw:15.3,away:9.0}},
+  {id:'s23',home:'Mexique',homeFlag:'🇲🇽',homeISO:'MEX',away:'Équateur',awayFlag:'🇪🇨',awayISO:'ECU',
+   scoreH:0,scoreA:0,status:'scheduled',date:'1 Juil · 03:00',comp:'Groupe F',tv:{cls:'tv-m6',l:'M6'},
+   prob:{home:43.8,draw:31.1,away:25.1}},
+  {id:'s24',home:'Angleterre',homeFlag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',homeISO:'ENG',away:'RD Congo',awayFlag:'🇨🇩',awayISO:'COD',
+   scoreH:0,scoreA:0,status:'scheduled',date:'1 Juil · 18:00',comp:'Groupe L',tv:{cls:'tv-tf1',l:'TF1'},
+   prob:{home:75.5,draw:16.5,away:8.0}},
+  {id:'s25',home:'Belgique',homeFlag:'🇧🇪',homeISO:'BEL',away:'Sénégal',awayFlag:'🇸🇳',awayISO:'SEN',
+   scoreH:0,scoreA:0,status:'scheduled',date:'1 Juil · 22:00',comp:'Groupe G',tv:{cls:'tv-tmc',l:'TMC'},
+   prob:{home:45.9,draw:29.3,away:24.8}},
+  {id:'s26',home:'États-Unis',homeFlag:'🇺🇸',homeISO:'USA',away:'Bosnie',awayFlag:'🇧🇦',awayISO:'BIH',
+   scoreH:0,scoreA:0,status:'scheduled',date:'2 Juil · 02:00',comp:'Groupe D',tv:{cls:'tv-m6',l:'M6'},
+   prob:{home:70.7,draw:18.8,away:10.5}},
+];
+
+const QUAL_CDM={
+  // Qualifiés confirmés
+  'France':'qualified','Sénégal':'qualified','Belgique':'qualified','Espagne':'qualified',
+  'Pays-Bas':'qualified','Turquie':'qualified','Angleterre':'qualified','Croatie':'qualified',
+  'RD Congo':'qualified','Argentine':'qualified',
+  // En danger
+  'Algérie':'danger','Autriche':'danger','Colombie':'danger','Portugal':'danger',
+  'Norvège':'danger','Suède':'danger','Japon':'danger','Égypte':'danger','Iran':'danger',
+  // Éliminés
+  'Uruguay':'out','Cap-Vert':'out','Arabie Saoudite':'out','Nouvelle-Zélande':'out',
+  'Tunisie':'out','Paraguay':'out','Australie':'out','Irak':'out',
+  'Panama':'out','Ghana':'out','Ouzbékistan':'out','Jordanie':'out',
+};
+const QLABEL={qualified:'✅ Qualifié',danger:'⚠️ En danger',out:'❌ Éliminé'};
+
+const STATIC_GENERIC={
+  ucl:[
+    {id:'u1',name:'Real Madrid vs Manchester City',date:'Finale · 31 Mai 2026',status:'scheduled',details:[{name:'Real Madrid',score:'-',order:1},{name:'Manchester City',score:'-',order:2}],notes:'Finale · Allianz Arena Munich'},
+    {id:'u2',name:'Bayern Munich vs Real Madrid — Demi',date:'Mai 2026',status:'final',details:[{name:'Real Madrid',score:'5-4 tab',order:1},{name:'Bayern Munich',score:'',order:2}],notes:'Real Madrid en finale'},
+  ],
+  uel:[{id:'ue1',name:'AS Roma vs Atlético Madrid',date:'27 Mai 2026',status:'scheduled',details:[{name:'AS Roma',score:'-',order:1},{name:'Atlético Madrid',score:'-',order:2}],notes:'Finale Europa League · Bilbao'}],
+  l1:[
+    {id:'l1a',name:'Paris Saint-Germain vs Marseille',date:'1 Juin 2026',status:'scheduled',details:[{name:'Paris Saint-Germain',score:'-',order:1},{name:'Marseille',score:'-',order:2}],notes:'38e journée'},
+    {id:'l1b',name:'Monaco vs Olympique Lyonnais',date:'31 Mai 2026',status:'final',details:[{name:'AS Monaco',score:'2',order:1},{name:'Olympique Lyonnais',score:'1',order:2}],notes:'37e journée'},
+  ],
+  nba:[
+    {id:'n1',name:'Finales NBA · Match 1',date:'4 Juin 2026',status:'scheduled',details:[{name:'Oklahoma City Thunder',score:'-',order:1},{name:'Boston Celtics',score:'-',order:2}],notes:'TD Garden, Boston'},
+    {id:'n2',name:'Finales NBA · Match 2',date:'7 Juin 2026',status:'scheduled',details:[{name:'Oklahoma City Thunder',score:'-',order:1},{name:'Boston Celtics',score:'-',order:2}],notes:'TD Garden, Boston'},
+  ],
+  euro:[{id:'e1',name:'Finale Euroleague 2026',date:'25 Mai 2026',status:'final',details:[{name:'Real Madrid',score:'89',order:1},{name:'Fenerbahçe',score:'82',order:2}],notes:'Real Madrid champion 🏆'}],
+  ro:[
+    {id:'r1',name:'Finale Hommes',date:'8 Juin 2026',status:'scheduled',details:[{name:'Carlos Alcaraz 🇪🇸',score:'-',order:1},{name:'Jannik Sinner 🇮🇹',score:'-',order:2}],notes:'Court Philippe-Chatrier'},
+    {id:'r2',name:'Finale Femmes',date:'7 Juin 2026',status:'scheduled',details:[{name:'Iga Świątek 🇵🇱',score:'-',order:1},{name:'Coco Gauff 🇺🇸',score:'-',order:2}],notes:'Court Philippe-Chatrier'},
+  ],
+  wim:[{id:'w1',name:'Wimbledon 2026',date:'1 - 14 Juil 2026',status:'scheduled',details:[],notes:'Tirage au sort : 20 Juin'}],
+  uso:[{id:'us1',name:'US Open 2026',date:'31 Août - 13 Sep 2026',status:'scheduled',details:[],notes:'Flushing Meadows · New York'}],
+  ao:[{id:'ao1',name:'Australian Open 2026',date:'19 Jan - 1 Fév 2026',status:'final',details:[{name:'Novak Djokovic 🇷🇸',score:'Champion 🏆',order:1}],notes:'Melbourne Park'}],
+  top14:[
+    {id:'t1',name:'Finale Top 14 2026',date:'28 Juin 2026',status:'scheduled',details:[{name:'Stade Toulousain',score:'-',order:1},{name:'Leinster',score:'-',order:2}],notes:'Stade de France'},
+    {id:'t2',name:'Demi-finale',date:'14 Juin 2026',status:'final',details:[{name:'Stade Toulousain',score:'34',order:1},{name:'Racing 92',score:'20',order:2}],notes:''},
+  ],
+  '6n':[{id:'6n1',name:'Tournoi des 6 Nations 2026',date:'Fév - Mar 2026',status:'final',details:[{name:'🇮🇪 Irlande — Grand Chelem 🏆',score:'Champion',order:1}],notes:''}],
+  cwc:[{id:'cwc1',name:'Coupe du Monde Rugby 2027',date:'Oct 2027 · Australie',status:'scheduled',details:[],notes:'Tirage prévu fin 2026'}],
+  f1:[
+    {id:'f1a',name:'GP de France 2026',date:'28 Juin 2026',status:'scheduled',details:[{name:'Max Verstappen 🇳🇱',score:'Pôle',order:1},{name:'Lewis Hamilton 🇬🇧',score:'2e',order:2},{name:'Charles Leclerc 🇲🇨',score:'3e',order:3}],notes:'Circuit Paul Ricard'},
+    {id:'f1b',name:'Classement Pilotes (provisoire)',date:'Saison 2026',status:'live',details:[{name:'Max Verstappen',score:'198 pts',order:1},{name:'Lando Norris',score:'175 pts',order:2},{name:'Lewis Hamilton',score:'162 pts',order:3},{name:'Charles Leclerc',score:'140 pts',order:4}],notes:''},
+  ],
+  jo:[{id:'jo1',name:'JO Los Angeles 2028',date:'14 - 30 Juil 2028',status:'scheduled',details:[],notes:'87 délégations qualifiées · 32 sports au programme'}],
+  dm:[{id:'dm1',name:'Mondiaux Athlétisme Tokyo 2025',date:'13 - 21 Sep 2025',status:'final',details:[{name:'🥇 Marcell Jacobs — 100m H',score:'9.78s',order:1},{name:"🥇 Sha'Carri Richardson — 100m F",score:'10.62s',order:2},{name:'🥇 Armand Duplantis — Perche',score:'6.25m',order:3}],notes:'🇺🇸 USA · 🇯🇵 Japon · 🇰🇪 Kenya'}],
+};
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let currentLeague={id:'cdm',name:'Coupe du Monde 2026'};
+let currentTab='all';   // 'all'|'final'|'scheduled'|'live'
+let currentQual='all';  // 'all'|'qualified'|'danger'|'out'
+let searchQ='';
+let refreshTimer=null;
+let liveTimer=null;
+
+/* ══════════════════════════════════════
+   APP INIT
+══════════════════════════════════════ */
+function initApp(){
+  const s=getSession();if(!s)return;
+  const initials=s.name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+  const su=document.getElementById('sidebar-user');
+  if(su)su.innerHTML=`<div class="sidebar-user-avatar">${initials}</div><div class="sidebar-user-info"><div class="sidebar-user-name">${s.name}</div><div class="sidebar-user-role">${s.country||'Membre'}</div></div>`;
+  if(refreshTimer)clearInterval(refreshTimer);
+  refreshTimer=setInterval(()=>{if(getSession())refreshData()},60000);
+  startLiveTimer();
+  buildCDMSidebarExtras();
+  requestNotifPermission();
+  loadLeague('cdm','Coupe du Monde 2026',document.getElementById('nav-cdm'));
+}
+
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open')}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebar-overlay').classList.remove('open')}
+
+function loadLeague(id,name,el){
+  currentLeague={id,name};
+  currentTab='all';currentQual='all';searchQ='';
+  document.querySelectorAll('.sidebar-item').forEach(x=>x.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const subs={
+    cdm:'Coupe du Monde FIFA 2026 · Phase de groupes',ucl:'UEFA Champions League',uel:'UEFA Europa League',
+    l1:"Ligue 1 · Saison 2025/26",pl:'Premier League · Saison 2025/26',liga:'LaLiga · Saison 2025/26',
+    bl:'Bundesliga · Saison 2025/26',sa:'Serie A · Saison 2025/26',
+    nba:'NBA · Saison 2025/26',euro:'EuroLeague Basketball',
+    ro:'Roland-Garros 2026',wim:'Wimbledon 2026',uso:'US Open 2026',ao:'Australian Open 2026',
+    top14:'Top 14 · Saison 2025/26','6n':'Tournoi des 6 Nations 2026',cwc:'Coupe du Monde Rugby 2027',
+    f1:'Formule 1 · Saison 2026',jo:'Jeux Olympiques · Los Angeles 2028',dm:'Mondiaux Athlétisme 2025'
+  };
+  const tt=document.getElementById('topbar-title');if(tt)tt.textContent=name;
+  const ts=document.getElementById('topbar-sub');if(ts)ts.textContent=subs[id]||'En cours';
+  closeSidebar();
+  renderContent();
+  refreshData();
+}
+
+/* ══════════════════════════════════════
+   LIVE SCORES — refresh toutes les 30s
+══════════════════════════════════════ */
+
+let countdownVal=30;
+let countdownTimer=null;
+
+function startLiveTimer(){
+  if(liveTimer)clearInterval(liveTimer);
+  if(countdownTimer)clearInterval(countdownTimer);
+
+  countdownVal=30;
+
+  // Countdown visuel toutes les secondes
+  countdownTimer=setInterval(()=>{
+    countdownVal--;
+    if(countdownVal<=0)countdownVal=30;
+    updateCountdown();
+  },1000);
+
+  // Fetch toutes les 30s
+  liveTimer=setInterval(async()=>{
+    countdownVal=30;
+    await fetchLiveScores();
+  },30000);
+}
+
+function updateCountdown(){
+  const fill=document.getElementById('countdown-fill');
+  const text=document.getElementById('countdown-text');
+  const badge=document.getElementById('ts-refresh-badge');
+  const pct=(countdownVal/30)*100;
+  if(fill)fill.style.width=pct+'%';
+  if(text){
+    const isLive=CDM_STATIC.some(m=>m.status==='live');
+    text.innerHTML=isLive
+      ?`<span class="countdown-live">🔴 LIVE</span> · Actualisation dans ${countdownVal}s`
+      :`Actualisation dans ${countdownVal}s`;
+  }
+  if(badge)badge.textContent=`🔄 ${countdownVal}s`;
+}
+
+function buildCountdown(){
+  const el=document.getElementById('refresh-countdown-bar');
+  if(!el)return;
+  const isLive=CDM_STATIC.some(m=>m.status==='live');
+  el.innerHTML=`
+    <span id="countdown-text" style="white-space:nowrap;flex-shrink:0">
+      ${isLive?'<span class="countdown-live">🔴 LIVE</span> · ':''}Actualisation dans ${countdownVal}s
+    </span>
+    <div class="countdown-bar"><div class="countdown-fill" id="countdown-fill" style="width:${(countdownVal/30)*100}%"></div></div>
+    <span style="flex-shrink:0;cursor:pointer;color:var(--blue)" onclick="fetchLiveScores()">↻ Now</span>`;
+}
+
+/* ══════════════════════════════════════
+   MULTI-API CASCADE — sans clé
+   Essaie chaque source jusqu'à succès
+══════════════════════════════════════ */
+
+const EN_TO_FR={
+  'Mexico':'Mexique','South Africa':'Afrique du Sud','South Korea':'Corée du Sud',
+  'Czech Republic':'République Tchèque','Switzerland':'Suisse',
+  'Bosnia & Herzegovina':'Bosnie','Scotland':'Écosse','Brazil':'Brésil',
+  'France':'France','Norway':'Norvège','Senegal':'Sénégal','Iraq':'Irak',
+  'Uruguay':'Uruguay','Spain':'Espagne','Cape Verde':'Cap-Vert',
+  'Saudi Arabia':'Arabie Saoudite','New Zealand':'Nouvelle-Zélande','Belgium':'Belgique',
+  'Egypt':'Égypte','Iran':'Iran','IR Iran':'Iran','Tunisia':'Tunisie',
+  'Netherlands':'Pays-Bas','Japan':'Japon','Sweden':'Suède','Turkey':'Turquie',
+  'USA':'États-Unis','United States':'États-Unis','Paraguay':'Paraguay',
+  'Australia':'Australie','Panama':'Panama','England':'Angleterre',
+  'Croatia':'Croatie','Ghana':'Ghana','Colombia':'Colombie','Portugal':'Portugal',
+  'DR Congo':'RD Congo','Congo DR':'RD Congo','Uzbekistan':'Ouzbékistan',
+  'Jordan':'Jordanie','Argentina':'Argentine','Algeria':'Algérie',
+  'Austria':'Autriche','Germany':'Allemagne','Morocco':'Maroc',
+  'Canada':'Canada','Qatar':'Qatar','Ecuador':'Équateur',
+  'Korea Republic':'Corée du Sud','Côte d\'Ivoire':'Côte d\'Ivoire',
+};
+
+// Sources API en cascade — appelées depuis le navigateur du téléphone
+const API_SOURCES=[
+  {
+    name:'openfootball/jsdelivr',
+    url:'https://cdn.jsdelivr.net/gh/openfootball/worldcup.json@master/2026/worldcup.json',
+    parse: parseOpenFootball
+  },
+  {
+    name:'openfootball/raw',
+    url:'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json',
+    parse: parseOpenFootball
+  },
+  {
+    name:'worldcup26.ir',
+    url:'https://worldcup26.ir/get/games',
+    parse: parseWorldcup26
+  },
+  {
+    name:'allorigins+openfootball',
+    url:'https://api.allorigins.win/raw?url=https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json',
+    parse: parseOpenFootball
+  },
+];
+
+function parseOpenFootball(data){
+  const matches=data.matches||[];
+  matches.forEach(m=>{
+    const homeFR=EN_TO_FR[m.team1]||m.team1;
+    const awayFR=EN_TO_FR[m.team2]||m.team2;
+    const score=m.score;
+    const ft=score?.ft;
+    const status=ft?'final':(score&&Object.keys(score).length?'live':'scheduled');
+
+    const found=CDM_STATIC.find(s=>{
+      const hName=s.home.toLowerCase();
+      const aName=s.away.toLowerCase();
+      const h1=homeFR.toLowerCase();const h2=m.team1.toLowerCase();
+      const a1=awayFR.toLowerCase();const a2=m.team2.toLowerCase();
+      return (hName===h1||hName===h2)&&(aName===a1||aName===a2);
+    });
+
+    if(found){
+      found.status=status;
+      if(ft){found.scoreH=ft[0];found.scoreA=ft[1];}
+      const goals1=(m.goals1||[]).map(g=>({t:g.minute||'?',flag:found.homeFlag,name:g.name}));
+      const goals2=(m.goals2||[]).map(g=>({t:g.minute||'?',flag:found.awayFlag,name:g.name}));
+      if(goals1.length||goals2.length){
+        found.goals=[...goals1,...goals2].sort((a,b)=>(parseInt(a.t)||0)-(parseInt(b.t)||0));
+      }
+    }
+  });
+}
+
+function parseWorldcup26(data){
+  const games=Array.isArray(data)?data:(data.games||data.matches||[]);
+  games.forEach(g=>{
+    const homeFR=EN_TO_FR[g.home_team||g.team1||g.homeTeam]||g.home_team||g.team1||'';
+    const awayFR=EN_TO_FR[g.away_team||g.team2||g.awayTeam]||g.away_team||g.team2||'';
+    const hScore=g.home_score??g.score_home??g.scoreH??null;
+    const aScore=g.away_score??g.score_away??g.scoreA??null;
+    const status=g.status==='FINISHED'||g.finished?'final':g.status==='IN_PLAY'?'live':'scheduled';
+    const found=CDM_STATIC.find(s=>s.home.toLowerCase()===homeFR.toLowerCase()&&s.away.toLowerCase()===awayFR.toLowerCase());
+    if(found){
+      found.status=status;
+      if(hScore!==null){found.scoreH=parseInt(hScore)||0;found.scoreA=parseInt(aScore)||0;}
+    }
+  });
+}
+
+async function fetchLiveScores(){
+  const bar=document.getElementById('last-update-bar');
+  const txt=document.getElementById('last-update-text');
+  if(bar)bar.style.display='flex';
+
+  // CDM → cascade multi-API
+  if(currentLeague.id==='cdm'){
+    let success=false;
+    for(const source of API_SOURCES){
+      try{
+        const ctrl=new AbortController();
+        const timer=setTimeout(()=>ctrl.abort(),8000);
+        const res=await fetch(source.url,{signal:ctrl.signal,cache:'no-store'});
+        clearTimeout(timer);
+        if(!res.ok)continue;
+        const data=await res.json();
+        source.parse(data);
+        success=true;
+        const liveN=CDM_STATIC.filter(m=>m.status==='live').length;
+        const finN=CDM_STATIC.filter(m=>m.status==='final').length;
+        if(txt)txt.textContent=
+          liveN>0?`🔴 ${liveN} match${liveN>1?'s':''} en direct`
+          :`✅ ${finN} terminés · ${source.name}`;
+        break;
+      }catch(e){
+        // Source échouée → essaie la suivante
+        continue;
+      }
+    }
+    if(!success&&txt)txt.textContent='⚠️ Toutes les APIs indisponibles — données locales affichées';
+    buildGlobalStats();updateLiveCount();buildTopScorer();buildCountdown();renderSoccer();
+    return;
+  }
+
+  // Autres ligues → ESPN
+  const slug=ESPN_SLUGS[currentLeague.id];
+  if(!slug){if(txt)txt.textContent='📅 Données statiques';return;}
+  try{
+    const res=await fetch(`https://site.api.espn.com/apis/site/v2/sports/${slug}/scoreboard`,{mode:'cors',cache:'no-store'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    if(txt)txt.textContent=`🔄 Mis à jour`;
+  }catch(e){
+    if(txt)txt.textContent='⚠️ ESPN indisponible';
+  }
+}
+
+function updateScoreInDOM(m){
+  // Trouve la carte du match dans le DOM et met à jour uniquement le score-block
+  const cards=document.querySelectorAll('.match-card');
+  cards.forEach(card=>{
+    const names=card.querySelectorAll('.team-name');
+    if(names.length>=2){
+      const h=names[0].textContent.trim();
+      const a=names[1].textContent.trim();
+      if(h===m.home&&a===m.away){
+        const sb=card.querySelector('.score-block');
+        if(sb){
+          if(m.status==='live'){
+            sb.innerHTML=`
+              <div class="score">${m.scoreH}<span class="score-sep">-</span>${m.scoreA}</div>
+              <div class="score-live">🔴 ${m.clock||'LIVE'}</div>`;
+            card.classList.remove('scheduled','final');
+            card.classList.add('live');
+            // Pulse sur le score
+            sb.style.animation='none';
+            setTimeout(()=>sb.style.animation='',10);
+          } else if(m.status==='final'){
+            sb.innerHTML=`<div class="score">${m.scoreH}<span class="score-sep">-</span>${m.scoreA}</div>`;
+            card.classList.remove('live','scheduled');
+            card.classList.add('final');
+          }
+        }
+        // Met à jour le status dot
+        const dot=card.querySelector('.status-dot');
+        if(dot){dot.className='status-dot '+m.status}
+        // Badge LIVE dans le header de la carte
+        const topRight=card.querySelector('.match-top-right span:last-child');
+        if(topRight){
+          topRight.textContent=(m.status==='live'?'🔴 ':'Terminé · ')+m.date;
+        }
+      }
+    }
+  });
+}
+
+function updateLiveCount(){
+  const liveCount=CDM_STATIC.filter(m=>m.status==='live').length;
+  // Met à jour le badge live dans la topbar si besoin
+  const lb=document.querySelector('.live-badge');
+  if(lb)lb.textContent=liveCount>0?`● ${liveCount} LIVE`:'● LIVE';
+  // Reconstruit les stats header
+  buildGlobalStats();
+}
+const ESPN_SLUGS={
+  cdm:'soccer/fifa.world',ucl:'soccer/uefa.champions',uel:'soccer/uefa.europa',
+  l1:'soccer/fra.1',pl:'soccer/eng.1',liga:'soccer/esp.1',bl:'soccer/ger.1',sa:'soccer/ita.1',
+  nba:'basketball/nba',euro:'basketball/mens-europe-league',
+  f1:'racing/f1'
+};
+const FLAG_BY_ABBR={
+  FRA:'🇫🇷',ENG:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',GER:'🇩🇪',ESP:'🇪🇸',ITA:'🇮🇹',POR:'🇵🇹',NED:'🇳🇱',BEL:'🇧🇪',
+  ARG:'🇦🇷',BRA:'🇧🇷',URU:'🇺🇾',USA:'🇺🇸',CAN:'🇨🇦',MEX:'🇲🇽',MAR:'🇲🇦',SEN:'🇸🇳',TUN:'🇹🇳',
+  DZA:'🇩🇿',CMR:'🇨🇲',GHA:'🇬🇭',EGY:'🇪🇬',ZAF:'🇿🇦',COD:'🇨🇩',JPN:'🇯🇵',KOR:'🇰🇷',
+  AUS:'🇦🇺',NZL:'🇳🇿',IRN:'🇮🇷',KSA:'🇸🇦',SAU:'🇸🇦',SUI:'🇨🇭',AUT:'🇦🇹',SWE:'🇸🇪',
+  NOR:'🇳🇴',TUR:'🇹🇷',CRO:'🇭🇷',PAN:'🇵🇦',COL:'🇨🇴',CPV:'🇨🇻',IRQ:'🇮🇶',UZB:'🇺🇿',
+  JOR:'🇯🇴',PAR:'🇵🇾',SRB:'🇷🇸'
+};
+
+async function refreshData(){
+  const btn=document.getElementById('refresh-btn');
+  if(btn)btn.classList.add('spin');
+  await fetchLiveScores();
+  if(btn)btn.classList.remove('spin');
+}
+
+/* ══════════════════════════════════════
+   RENDER
+══════════════════════════════════════ */
+const isSoccer=lid=>['cdm','ucl','uel','l1','pl','liga','bl','sa'].includes(lid);
+
+function renderContent(){
+  const lid=currentLeague.id;
+  const sb=document.getElementById('search-bar');
+  if(sb)sb.style.display='flex';
+  const si=document.getElementById('search-input');
+  if(si){si.value='';searchQ=''}
+  const sc=document.getElementById('search-clear');
+  if(sc)sc.style.display='none';
+  const sinfo=document.getElementById('search-info');
+  if(sinfo)sinfo.textContent='';
+
+  if(isSoccer(lid)){
+    showEl('filter-row');showEl('global-stats');showEl('top-scorer-banner');
+    if(lid==='cdm'){
+      const cb=document.getElementById('refresh-countdown-bar');
+      if(cb)cb.style.display='flex';
+      buildCountdown();
+    }
+    buildFilterRow();buildGlobalStats();buildTopScorer();
+    renderSoccer();
+  } else {
+    hideEl('filter-row');hideEl('global-stats');hideEl('top-scorer-banner');
+    renderGeneric();
+  }
+}
+
+function showEl(id){const e=document.getElementById(id);if(e)e.style.display=''}
+function hideEl(id){const e=document.getElementById(id);if(e)e.style.display='none'}
+
+/* ── FILTER ROW ── */
+function buildFilterRow(){
+  const el=document.getElementById('filter-row');
+  if(!el)return;
+  el.innerHTML=`
+    <div class="fpill ${currentTab==='all'?'active':''}" onclick="setTabFilter('all',this)">🌍 Tous</div>
+    <div class="fpill ${currentTab==='final'?'active':''}" onclick="setTabFilter('final',this)">✅ Terminés</div>
+    <div class="fpill ${currentTab==='scheduled'?'active':''}" onclick="setTabFilter('scheduled',this)">🕐 À venir</div>
+    <div class="fpill ${currentTab==='live'?'active':''}" onclick="setTabFilter('live',this)">🔴 Live</div>
+    <div style="width:1px;background:var(--border);align-self:stretch;margin:0 2px"></div>
+    <div class="fpill q-qualified ${currentQual==='qualified'?'active':''}" onclick="setQualFilter('qualified',this)">✅ Qualifiés</div>
+    <div class="fpill q-danger ${currentQual==='danger'?'active':''}" onclick="setQualFilter('danger',this)">⚠️ En danger</div>
+    <div class="fpill q-out ${currentQual==='out'?'active':''}" onclick="setQualFilter('out',this)">❌ Éliminés</div>`;
+}
+
+/* CORRECTION BUG : setTab et setQual reconstruisent les pills ET re-rendent */
+function setTabFilter(t,el){
+  currentTab=t;
+  // Met à jour toutes les pills de tab (sans toucher aux pills qual)
+  document.querySelectorAll('#filter-row .fpill:not(.q-qualified):not(.q-danger):not(.q-out)').forEach(x=>x.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderSoccer();
+}
+function setQualFilter(q,el){
+  currentQual=(currentQual===q)?'all':q;
+  document.querySelectorAll('.fpill.q-qualified,.fpill.q-danger,.fpill.q-out').forEach(x=>x.classList.remove('active'));
+  if(currentQual!=='all'&&el)el.classList.add('active');
+  renderSoccer();
+}
+
+/* ── STATS & TOP SCORER ── */
+function buildGlobalStats(){
+  const el=document.getElementById('global-stats');if(!el)return;
+  const played=CDM_STATIC.filter(m=>m.status==='final').length;
+  const goals=CDM_STATIC.filter(m=>m.status==='final').reduce((a,m)=>a+(m.scoreH||0)+(m.scoreA||0),0);
+  const upcoming=CDM_STATIC.filter(m=>m.status==='scheduled').length;
+  const live=CDM_STATIC.filter(m=>m.status==='live').length;
+  el.innerHTML=`
+    <div class="gstat"><div class="gstat-val">${played}</div><div class="gstat-label">Joués</div></div>
+    <div class="gstat"><div class="gstat-val">${goals}</div><div class="gstat-label">Buts</div></div>
+    <div class="gstat"><div class="gstat-val">${played?(goals/played).toFixed(1):0}</div><div class="gstat-label">Moy/match</div></div>
+    <div class="gstat"><div class="gstat-val">${upcoming}</div><div class="gstat-label">À venir</div></div>
+    ${live?`<div class="gstat"><div class="gstat-val" style="color:var(--red)">${live}</div><div class="gstat-label">Live</div></div>`:''}`;
+}
+function getTopScorers(){
+  const s={};
+  CDM_STATIC.forEach(m=>(m.goals||[]).forEach(g=>{
+    if(g.name&&g.name!=='Inconnu')s[g.name]=(s[g.name]||0)+1;
+  }));
+  const sorted=Object.entries(s).sort((a,b)=>b[1]-a[1]);
+  const max=sorted[0]?.[1]||0;
+  return{top10:sorted.slice(0,6),all:sorted.filter(x=>x[1]===max).map(x=>x[0]),max};
+}
+
+function buildTopScorer(){
+  const el=document.getElementById('top-scorer-banner');if(!el)return;
+  if(currentLeague.id!=='cdm'){el.style.display='none';return}
+  const{top10:top6,max}=getTopScorers();
+  if(!top6.length||!max){el.style.display='none';return}
+  el.style.display='';
+
+  const medals=['🥇','🥈','🥉'];
+  const rows=top6.slice(0,6).map(([name,goals],i)=>`
+    <div class="ts-row">
+      <span class="ts-rank">${medals[i]||`${i+1}`}</span>
+      <span class="ts-pname">${name}</span>
+      <span class="ts-goals">${goals} ⚽</span>
+    </div>`).join('');
+
+  el.innerHTML=`
+    <div class="top-scorer-card">
+      <div class="ts-header">
+        <span class="ts-icon">⚽</span>
+        <div>
+          <div class="ts-label">TOP BUTEURS</div>
+          <div class="ts-sublabel">Classement en direct · CDM 2026</div>
+        </div>
+        <div class="ts-refresh-badge" id="ts-refresh-badge">🔄</div>
+      </div>
+      <div class="ts-list">${rows}</div>
+    </div>`;
+}
+
+/* ── HELPERS ── */
+function hl(t,q){
+  if(!q||!t)return t||'';
+  try{return t.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi'),'<span class="highlight">$1</span>')}
+  catch(e){return t}
+}
+
+/* ── RENDER SOCCER ── */
+function renderSoccer(){
+  const lid=currentLeague.id;
+  const matches=lid==='cdm'?CDM_STATIC:[];
+  const{all:topNames}=getTopScorers();
+  const q=searchQ;
+
+  const statusOrder={live:0,scheduled:1,final:2};
+
+  let filtered=matches.filter(m=>{
+    if(currentTab!=='all'&&m.status!==currentTab)return false;
+    if(currentQual!=='all'){
+      if(QUAL_CDM[m.home]!==currentQual&&QUAL_CDM[m.away]!==currentQual)return false;
+    }
+    if(q){
+      const l=q.toLowerCase();
+      return(m.home||'').toLowerCase().includes(l)||(m.away||'').toLowerCase().includes(l)||
+        (m.comp||'').toLowerCase().includes(l)||(m.tv?.l||'').toLowerCase().includes(l)||
+        (m.goals||[]).some(g=>g.name.toLowerCase().includes(l));
+    }
+    return true;
+  }).sort((a,b)=>{
+    // Live en premier, puis à venir, puis terminés
+    const oa=statusOrder[a.status]??2;
+    const ob=statusOrder[b.status]??2;
+    if(oa!==ob)return oa-ob;
+    // À égalité de statut : les finaux les plus récents en haut (inverser l'ordre)
+    if(a.status==='final')return matches.indexOf(b)-matches.indexOf(a);
+    return matches.indexOf(a)-matches.indexOf(b);
+  });
+
+  const sinfo=document.getElementById('search-info');
+  if(sinfo)sinfo.textContent=q&&filtered.length===0?`Aucun résultat pour "${q}"`:
+    q?`${filtered.length} match${filtered.length>1?'s':''} pour "${q}"` :'';
+
+  const ca=document.getElementById('content-area');if(!ca)return;
+  if(!filtered.length){ca.innerHTML=`<div class="no-results"><div class="no-results-icon">🔍</div>Aucun résultat${q?` pour "<b>${q}</b>"`:''}${currentTab!=='all'||currentQual!=='all'?'<br><small style="color:var(--text3);margin-top:8px;display:block">Essaie de réinitialiser les filtres</small>':''}</div>`;return}
+
+  const liveMatches=CDM_STATIC.filter(m=>m.status==='live');
+  const liveIndicator=liveMatches.length>0
+    ?`<div class="live-indicator"><span class="dot"></span>⚡ ${liveMatches.length} match${liveMatches.length>1?'s':''} en direct — scores mis à jour toutes les 30 secondes</div>`
+    :'';
+
+  ca.innerHTML=liveIndicator+`<div class="matches-grid">${filtered.map((m,i)=>{
+    const winner=m.status==='final'?(m.scoreH>m.scoreA?m.home:m.scoreA>m.scoreH?m.away:null):null;
+    const big=m.status==='final'&&(m.scoreH+m.scoreA)>=5;
+    const qH=QUAL_CDM[m.home],qA=QUAL_CDM[m.away];
+    const tvB=m.tv?`<div class="tv-badge ${m.tv.cls}">📺 ${hl(m.tv.l,q)}</div>`:'';
+
+    // LOGO : clubs ont un SVG écusson, équipes nationales ont leur drapeau emoji
+    const hLogo=teamLogo(m,'home');
+    const aLogo=teamLogo(m,'away');
+
+    let score=m.status==='live'
+      ?`<div class="score">${m.scoreH}<span class="score-sep">-</span>${m.scoreA}</div><div class="score-live">🔴 LIVE</div>`
+      :m.status==='final'
+        ?`<div class="score">${m.scoreH}<span class="score-sep">-</span>${m.scoreA}</div>`
+        :`<div class="score-upcoming"><span class="score-dash">-</span><span class="score-sep-upcoming">:</span><span class="score-dash">-</span></div>`;
+
+    let footer='';
+    if(m.status==='final'||m.status==='live'){
+      const goals=m.goals||[];
+      if(goals.length){
+        const hGoals=goals.filter(g=>g.flag===m.homeFlag);
+        const aGoals=goals.filter(g=>g.flag===m.awayFlag);
+        const mkGoal=g=>`<div class="goal-item"><span class="goal-time">${g.t}'</span><span class="goal-flag">${g.flag||''}</span><span class="goal-scorer ${topNames.includes(g.name)?'ts':''}">${hl(g.name,q)}</span></div>`;
+        footer=`<div class="goals-2col">
+          <div class="goals-home">
+            <div class="goals-col-label">${m.homeFlag} ${m.home}</div>
+            ${hGoals.length?hGoals.map(mkGoal).join(''):'<span class="no-goals">—</span>'}
+          </div>
+          <div class="goals-away">
+            <div class="goals-col-label">${m.awayFlag} ${m.away}</div>
+            ${aGoals.length?aGoals.map(mkGoal).join(''):'<span class="no-goals">—</span>'}
+          </div>
+        </div>`;
+      } else {
+        footer=`<div style="border-top:1px solid var(--border);padding:8px 13px"><span class="no-goals">Match sans but</span></div>`;
+      }
+    } else {
+      const p=m.prob||{};
+      footer=p.home?`<div class="match-footer"><div class="proba-wrap">
+        <div class="proba-labels"><span>${m.homeFlag} ${m.home} ${p.home}%</span><span>Nul ${p.draw}%</span><span>${p.away}% ${m.away} ${m.awayFlag}</span></div>
+        <div class="proba-bar"><div class="proba-h" style="width:${p.home}%"></div><div class="proba-d" style="width:${p.draw}%"></div><div class="proba-a"></div></div>
+      </div></div>`:'';
+    }
+
+    // Heure affichée dans le top-bar pour les matchs à venir
+    const parts=(m.date||'').split(' · ');
+    const timeStr=parts[1]||'';
+    const dayStr=parts[0]||'';
+    const topRight=m.status==='final'
+      ?`<div class="status-dot final"></div><span>Terminé · ${m.date||''}</span>`
+      :m.status==='live'
+        ?`<div class="status-dot live"></div><span>🔴 LIVE</span>`
+        :`<div class="status-dot scheduled"></div><span>${dayStr} · <strong>${timeStr}</strong></span>`;
+
+    return `<div class="match-card ${m.status} ${big?'big-score':''}" style="animation-delay:${i*.04}s;cursor:pointer" data-mid="${m.id}">
+      <div class="match-top">
+        <div class="match-top-left"><span class="comp-badge">${hl(m.comp||'',q)}</span>${tvB}</div>
+        <div class="match-top-right">${topRight}</div>
+      </div>
+      <div class="match-body">
+        <div class="team">
+          ${hLogo}
+          <div class="team-name ${winner===m.home?'winner':''}">${hl(m.home||'',q)}</div>
+          ${qH?`<div class="qual-badge qb-${qH}">${QLABEL[qH]}</div>`:''}
+        </div>
+        <div class="score-block">${score}</div>
+        <div class="team">
+          ${aLogo}
+          <div class="team-name ${winner===m.away?'winner':''}">${hl(m.away||'',q)}</div>
+          ${qA?`<div class="qual-badge qb-${qA}">${QLABEL[qA]}</div>`:''}
+        </div>
+      </div>
+      ${footer}
+    </div>`;
+  }).join('')}</div>`;
+
+  // Event delegation — clic sur une carte ouvre le détail
+  const grid=document.getElementById('content-area');
+  if(grid&&!grid._hasClickListener){
+    grid._hasClickListener=true;
+    grid.addEventListener('click',e=>{
+      const card=e.target.closest('[data-mid]');
+      if(card)openMatchDetail(card.dataset.mid);
+    });
+  }
+
+  if(currentTab==='final'&&filtered.some(m=>(m.scoreH||0)+(m.scoreA||0)>=5))confetti();
+}
+
+/* ── RENDER GENERIC ── */
+function renderGeneric(){
+  const lid=currentLeague.id;
+  const data=STATIC_GENERIC[lid]||[];
+  const q=searchQ;
+  const filtered=!q?data:data.filter(ev=>
+    (ev.name||'').toLowerCase().includes(q.toLowerCase())||
+    (ev.notes||'').toLowerCase().includes(q.toLowerCase())||
+    (ev.details||[]).some(d=>(d.name||'').toLowerCase().includes(q.toLowerCase()))
+  );
+
+  const sinfo=document.getElementById('search-info');
+  if(sinfo)sinfo.textContent=q&&filtered.length===0?`Aucun résultat pour "${q}"`:q?`${filtered.length} résultat${filtered.length>1?'s':''}`:'' ;
+
+  const ca=document.getElementById('content-area');if(!ca)return;
+  if(!filtered.length){
+    ca.innerHTML=`<div class="no-results"><div class="no-results-icon">📅</div>Aucune donnée disponible<br><small style="color:var(--text3);margin-top:8px;display:block">Les données s'afficheront quand la compétition sera active</small></div>`;
+    return;
+  }
+
+  const LEAGUE_ICONS={
+    ucl:`<svg width="28" height="28" viewBox="0 0 24 24"><path d="M12 2L9.5 8.5H3l5.3 3.8-2 6.2L12 14.5l5.7 4-2-6.2L21 8.5h-6.5z" fill="#1a3a8a"/></svg>`,
+    uel:`<svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#f97316" stroke-width="1.5"/><path d="M12 6l1.8 4.5H18l-3.5 2.5 1.3 4L12 14.5 8.2 17l1.3-4L6 10.5h4.2z" fill="#f97316"/></svg>`,
+    l1:`<svg width="28" height="28" viewBox="0 0 24 24"><rect x="3" y="4" width="5" height="16" rx="1.5" fill="#002395"/><rect x="9.5" y="4" width="5" height="16" fill="#fff" stroke="#dde3f0" stroke-width=".5"/><rect x="16" y="4" width="5" height="16" rx="1.5" fill="#ED2939"/></svg>`,
+    pl:`<svg width="28" height="28" viewBox="0 0 24 24"><path d="M12 3l2.2 5.5H20l-4.8 3.5 1.8 5.5L12 14 7 17.5l1.8-5.5L4 8.5h5.8z" fill="#3d195b"/><circle cx="12" cy="12" r="2.5" fill="#00ff85"/></svg>`,
+    liga:`<svg width="28" height="28" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3" fill="none" stroke="#ee8700" stroke-width="1.5"/><text x="12" y="16.5" text-anchor="middle" font-size="9" font-weight="900" fill="#ee8700" font-family="Arial">LA</text></svg>`,
+    bl:`<svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#d20515" stroke-width="1.5"/><text x="12" y="16" text-anchor="middle" font-size="8" font-weight="900" fill="#d20515" font-family="Arial">BL</text></svg>`,
+    sa:`<svg width="28" height="28" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="none" stroke="#0066cc" stroke-width="1.5"/><text x="12" y="16" text-anchor="middle" font-size="8" font-weight="900" fill="#0066cc" font-family="Arial">SA</text></svg>`,
+    nba:`<svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#c8102e" stroke-width="1.5"/><path d="M5 8c3 1.5 3 7 0 8M19 8c-3 1.5-3 7 0 8M3 12h18" stroke="#1d428a" stroke-width="1.5"/></svg>`,
+    euro:`<svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#003da5" stroke-width="1.5"/><path d="M5 8c3 1.5 3 7 0 8M19 8c-3 1.5-3 7 0 8M3 12h18" stroke="#003da5" stroke-width="1.5"/></svg>`,
+    ro:`<svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#c8702a" opacity=".15"/><path d="M5 6c4 3 4 9 0 12M19 6c-4 3-4 9 0 12" stroke="#c8702a" stroke-width="1.5"/></svg>`,
+    wim:`<svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#006633" opacity=".12" stroke="#006633" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="#fff" stroke="#006633" stroke-width="1"/></svg>`,
+    uso:`<svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#002868" opacity=".1" stroke="#002868" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="#BF0A30" opacity=".7"/></svg>`,
+    ao:`<svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#009FDF" opacity=".12" stroke="#009FDF" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="#009FDF" opacity=".6"/></svg>`,
+    top14:`<svg width="28" height="28" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="5.5" fill="#002395" opacity=".1" stroke="#002395" stroke-width="1.5"/><line x1="3" y1="12" x2="21" y2="12" stroke="#002395" stroke-width="1.2"/></svg>`,
+    '6n':`<svg width="28" height="28" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="5.5" fill="#1a56db" opacity=".1" stroke="#1a56db" stroke-width="1.5"/><text x="12" y="15.5" text-anchor="middle" font-size="7" font-weight="900" fill="#1a56db" font-family="Arial">6N</text></svg>`,
+    cwc:`<svg width="28" height="28" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="5.5" fill="#8B4513" opacity=".12" stroke="#8B4513" stroke-width="1.5"/></svg>`,
+    f1:`<svg width="28" height="28" viewBox="0 0 24 24"><rect x="2" y="10" width="20" height="5" rx="2.5" fill="#e10600" opacity=".1" stroke="#e10600" stroke-width="1.5"/><circle cx="7" cy="15" r="2.5" fill="#222" stroke="#e10600" stroke-width="1"/><circle cx="17" cy="15" r="2.5" fill="#222" stroke="#e10600" stroke-width="1"/></svg>`,
+    jo:`<svg width="28" height="28" viewBox="0 0 28 28"><circle cx="7" cy="10" r="3.5" stroke="#0085c7" stroke-width="1.5" fill="none"/><circle cx="14" cy="10" r="3.5" stroke="#222" stroke-width="1.5" fill="none"/><circle cx="21" cy="10" r="3.5" stroke="#df0024" stroke-width="1.5" fill="none"/><circle cx="10.5" cy="16" r="3.5" stroke="#f4c300" stroke-width="1.5" fill="none"/><circle cx="17.5" cy="16" r="3.5" stroke="#009f3d" stroke-width="1.5" fill="none"/></svg>`,
+    dm:`<svg width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5" fill="#f59e0b"/><path d="M12 7.5v5M9.5 10l-2.5 4M14.5 10l2.5 4" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+  };
+  const iconSvg=LEAGUE_ICONS[lid]||'🏆';
+
+  // Logos de clubs dans les cartes génériques
+  ca.innerHTML=filtered.map((ev,i)=>{
+    const stCls=ev.status==='live'?'gc-live':ev.status==='final'?'gc-done':'gc-soon';
+    const stTxt=ev.status==='live'?'🔴 LIVE':ev.status==='final'?'✅ Terminé':'📅 À venir';
+    const details=(ev.details||[]).map((d,j)=>{
+      const cLogo=clubLogo(d.name,28);
+      return`<div class="gc-row">
+        <span class="pos">${j===0&&ev.details.length>1?'🥇':j===1?'🥈':j===2?'🥉':''}</span>
+        ${cLogo?`<span style="width:28px;height:28px;flex-shrink:0;display:inline-flex">${cLogo}</span>`:''}
+        <strong>${hl(d.name||'',q)}</strong>
+        <span style="margin-left:auto;font-weight:700;color:var(--text)">${d.score||''}</span>
+      </div>${j<(ev.details||[]).length-1?'<div class="gc-divider"></div>':''}`;
+    }).join('');
+    return`<div class="generic-card" style="animation-delay:${i*.06}s">
+      <div class="gc-header">
+        <div class="gc-icon">${iconSvg}</div>
+        <div><div class="gc-title">${hl(ev.name||'',q)}</div><div class="gc-sub">${ev.date||''}</div></div>
+        <span class="gc-badge ${stCls}">${stTxt}</span>
+      </div>
+      ${ev.notes?`<div style="font-size:11px;color:var(--text2);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">${hl(ev.notes,q)}</div>`:''}
+      <div class="gc-body">${details}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── SEARCH ── */
+function onSearch(){
+  searchQ=document.getElementById('search-input').value;
+  const sc=document.getElementById('search-clear');if(sc)sc.style.display=searchQ?'block':'none';
+  if(isSoccer(currentLeague.id))renderSoccer();else renderGeneric();
+}
+function clearSearch(){
+  const si=document.getElementById('search-input');if(si)si.value='';
+  searchQ='';
+  const sc=document.getElementById('search-clear');if(sc)sc.style.display='none';
+  const sinfo=document.getElementById('search-info');if(sinfo)sinfo.textContent='';
+  renderContent();
+}
+
+/* ── THEME & CONFETTI ── */
+function toggleTheme(){const h=document.documentElement,d=h.getAttribute('data-theme')==='dark';h.setAttribute('data-theme',d?'light':'dark')}
+function confetti(){const c=document.getElementById('confetti-container'),cols=['#1a56db','#e8192c','#f59e0b','#10b981','#7c3aed','#fff'];for(let i=0;i<60;i++){const el=document.createElement('div');el.className='confetto';const sz=6+Math.random()*7;el.style.cssText=`left:${Math.random()*100}%;background:${cols[~~(Math.random()*cols.length)]};width:${sz}px;height:${sz}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.8}s`;c.appendChild(el);setTimeout(()=>el.remove(),4000)}}
+
+/* ══════════════════════════════════════
+   BOOT
+══════════════════════════════════════ */
+(function init(){
+  const s=getSession();
+  if(!s){showScreen('login');return}
+  if(s.role==='admin'){showScreen('admin');return}
+  if(s.role==='user'){showScreen('app')}
+  else{showScreen('login')}
+})();
+</script>
+
+<script>
+// Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      await navigator.serviceWorker.register('sw.js', { scope: './' });
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.type === 'SCORES_UPDATE') {
+          if (typeof fetchLiveScores === 'function') fetchLiveScores();
+        }
+      });
+      if ('Notification' in window && Notification.permission === 'default') {
+        setTimeout(async () => { await Notification.requestPermission(); }, 5000);
+      }
+    } catch (err) { console.log('SW non disponible:', err); }
+  });
+
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const banner = document.createElement('div');
+    banner.id = 'install-banner';
+    banner.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a56db,#7c3aed);color:white;padding:12px 20px;border-radius:50px;font-family:Segoe UI,sans-serif;font-size:13px;font-weight:700;box-shadow:0 8px 32px rgba(26,86,219,0.4);display:flex;align-items:center;gap:10px;cursor:pointer;z-index:99999;white-space:nowrap;animation:slideUp 0.4s ease';
+    banner.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 2v13M7 9l5 5 5-5"/><path d="M5 19h14"/></svg> Installer SportsLive <span style="opacity:.6;margin-left:4px;font-size:16px">&#x2715;</span>';
+    banner.onclick = async (evt) => {
+      if (evt.target.tagName === 'SPAN') { banner.remove(); return; }
+      banner.remove();
+      if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; }
+    };
+    const s = document.createElement('style');
+    s.textContent = '@keyframes slideUp{from{transform:translateX(-50%) translateY(100px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}';
+    document.head.appendChild(s);
+    document.body.appendChild(banner);
+    setTimeout(() => { if(banner.parentNode) banner.remove(); }, 8000);
+  });
+}
+</script>
+</body>
+</html>
