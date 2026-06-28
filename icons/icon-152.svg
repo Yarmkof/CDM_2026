@@ -1,0 +1,17 @@
+<svg width="152" height="152" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="152" height="152" rx="30.400000000000002" fill="#1a56db"/>
+  <rect width="152" height="152" rx="30.400000000000002" fill="url(#grad)"/>
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="152" y2="152" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1a56db"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <!-- Globe football -->
+  <circle cx="76.0" cy="63.839999999999996" r="42.56" stroke="white" stroke-width="3.8000000000000003" fill="none" opacity="0.9"/>
+  <path d="M76.0 21.279999999999994 C76.0 21.279999999999994 46.208 51.071999999999996 46.208 63.839999999999996 C46.208 76.608 76.0 106.4 76.0 106.4" stroke="white" stroke-width="2.7359999999999998" fill="none"/>
+  <path d="M76.0 21.279999999999994 C76.0 21.279999999999994 105.792 51.071999999999996 105.792 63.839999999999996 C105.792 76.608 76.0 106.4 76.0 106.4" stroke="white" stroke-width="2.7359999999999998" fill="none"/>
+  <line x1="33.44" y1="63.839999999999996" x2="118.56" y2="63.839999999999996" stroke="white" stroke-width="2.7359999999999998"/>
+  <!-- SL text -->
+  <text x="76.0" y="133.76" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="21.28" fill="white" opacity="0.95">SL</text>
+</svg>
