@@ -684,6 +684,8 @@ function doRegister(){
   users.push({id:Date.now().toString(36),firstname:fn,lastname:ln,email:em,hash:hashPass(pw),country:co,status:'approved',createdAt:new Date().toISOString()});
   saveUsers(users);
   saveSession({email:em,role:'user',name:fn+' '+ln,country:co});
+  // Incrémente le compteur en ligne
+  fetch('https://abacus.jasoncameron.dev/hit/sportslive-yarmkof/members').catch(()=>{});
   showMsg('reg-msg','Compte créé ! Bienvenue 🎉','success');
   setTimeout(()=>showScreen('app'),900);
 }
@@ -696,7 +698,15 @@ function renderAdminStats(){
   const u=getUsers();const p=u.filter(x=>x.status==='pending').length;const a=u.filter(x=>x.status==='approved').length;
   const nb=document.getElementById('np');if(nb)nb.textContent=p;
   const as=document.getElementById('admin-stats');
-  if(as)as.innerHTML=`<div class="astat"><div class="astat-val">${u.length}</div><div class="astat-label">Total</div></div><div class="astat"><div class="astat-val" style="color:var(--green)">${a}</div><div class="astat-label">Approuvés</div></div><div class="astat"><div class="astat-val" style="color:var(--gold)">${p}</div><div class="astat-label">En attente</div></div>`;
+  if(as)as.innerHTML=`
+    <div class="astat"><div class="astat-val">${u.length}</div><div class="astat-label">Sur cet appareil</div></div>
+    <div class="astat"><div class="astat-val" style="color:var(--green)">${a}</div><div class="astat-label">Approuvés</div></div>
+    <div class="astat"><div class="astat-val" id="global-count" style="color:var(--purple)">…</div><div class="astat-label">Total inscrits 🌍</div></div>`;
+  // Charge le compteur global
+  fetch('https://abacus.jasoncameron.dev/get/sportslive-yarmkof/members')
+    .then(r=>r.json())
+    .then(d=>{ const el=document.getElementById('global-count'); if(el)el.textContent=d.value||'0'; })
+    .catch(()=>{ const el=document.getElementById('global-count'); if(el)el.textContent='—'; });
 }
 function renderAdminList(tab){
   renderAdminStats();
