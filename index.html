@@ -252,10 +252,6 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var
 .ts-goals{font-size:12px;font-weight:900;color:#fff;background:rgba(255,255,255,.18);padding:2px 8px;border-radius:20px;flex-shrink:0}
 
 /* COUNTDOWN refresh */
-.refresh-countdown{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text3);padding:5px 10px;background:var(--surface);border-radius:8px;border:1px solid var(--border);margin-bottom:10px}
-.countdown-bar{flex:1;height:3px;background:var(--border);border-radius:3px;overflow:hidden}
-.countdown-fill{height:100%;background:var(--blue);border-radius:3px;transition:width 1s linear}
-.countdown-live{color:var(--red);font-weight:700}
 
 /* LAST UPDATE */
 .last-update-bar{display:flex;align-items:center;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:10px;padding:6px 10px;background:var(--surface);border-radius:8px;border:1px solid var(--border)}
@@ -614,7 +610,6 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var
         <span id="last-update-text">—</span>
         <span style="font-size:11px;cursor:pointer;color:var(--blue)" onclick="refreshData()">Actualiser</span>
       </div>
-      <div id="refresh-countdown-bar" class="refresh-countdown" style="display:none"></div>
       <div id="top-scorer-banner" style="display:none"></div>
       <div class="global-stats" id="global-stats" style="display:none"></div>
       <div class="filter-row" id="filter-row" style="display:none"></div>
@@ -999,54 +994,14 @@ function loadLeague(id,name,el){
    LIVE SCORES — refresh toutes les 30s
 ══════════════════════════════════════ */
 
-let countdownVal=30;
-let countdownTimer=null;
 
 function startLiveTimer(){
   if(liveTimer)clearInterval(liveTimer);
-  if(countdownTimer)clearInterval(countdownTimer);
-
-  countdownVal=30;
-
-  // Countdown visuel toutes les secondes
-  countdownTimer=setInterval(()=>{
-    countdownVal--;
-    if(countdownVal<=0)countdownVal=30;
-    updateCountdown();
-  },1000);
-
-  // Fetch toutes les 30s
+// Countdown visuel toutes les secondes
+// Fetch toutes les 30s
   liveTimer=setInterval(async()=>{
-    countdownVal=30;
-    await fetchLiveScores();
+await fetchLiveScores();
   },30000);
-}
-
-function updateCountdown(){
-  const fill=document.getElementById('countdown-fill');
-  const text=document.getElementById('countdown-text');
-  const badge=document.getElementById('ts-refresh-badge');
-  const pct=(countdownVal/30)*100;
-  if(fill)fill.style.width=pct+'%';
-  if(text){
-    const isLive=CDM_STATIC.some(m=>m.status==='live');
-    text.innerHTML=isLive
-      ?`<span class="countdown-live">🔴 LIVE</span> · Actualisation dans ${countdownVal}s`
-      :`Actualisation dans ${countdownVal}s`;
-  }
-  if(badge)badge.textContent=`🔄 ${countdownVal}s`;
-}
-
-function buildCountdown(){
-  const el=document.getElementById('refresh-countdown-bar');
-  if(!el)return;
-  const isLive=CDM_STATIC.some(m=>m.status==='live');
-  el.innerHTML=`
-    <span id="countdown-text" style="white-space:nowrap;flex-shrink:0">
-      ${isLive?'<span class="countdown-live">🔴 LIVE</span> · ':''}Actualisation dans ${countdownVal}s
-    </span>
-    <div class="countdown-bar"><div class="countdown-fill" id="countdown-fill" style="width:${(countdownVal/30)*100}%"></div></div>
-    <span style="flex-shrink:0;cursor:pointer;color:var(--blue)" onclick="fetchLiveScores()">↻ Now</span>`;
 }
 
 /* ══════════════════════════════════════
@@ -1147,32 +1102,70 @@ async function fetchLiveScores(){
   const txt=document.getElementById('last-update-text');
   if(bar)bar.style.display='flex';
 
-  // CDM → cascade multi-API
   if(currentLeague.id==='cdm'){
     let success=false;
-    for(const source of API_SOURCES){
-      try{
-        const ctrl=new AbortController();
-        const timer=setTimeout(()=>ctrl.abort(),8000);
-        const res=await fetch(source.url,{signal:ctrl.signal,cache:'no-store'});
-        clearTimeout(timer);
-        if(!res.ok)continue;
+
+    // Source 1 : ESPN (la plus fiable depuis GitHub Pages)
+    try{
+      const ctrl=new AbortController();
+      setTimeout(()=>ctrl.abort(),8000);
+      const res=await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard',{signal:ctrl.signal,cache:'no-store',mode:'cors'});
+      if(res.ok){
         const data=await res.json();
-        source.parse(data);
+        const events=data.events||[];
+        events.forEach(ev=>{
+          const comp=ev.competitions?.[0];if(!comp)return;
+          const comps=comp.competitors||[];
+          const hC=comps.find(c=>c.homeAway==='home');
+          const aC=comps.find(c=>c.homeAway==='away');
+          if(!hC||!aC)return;
+          const status=comp.status?.type?.completed?'final':comp.status?.type?.state==='in'?'live':'scheduled';
+          const clock=comp.status?.displayClock||'';
+          const hName=(hC.team?.displayName||hC.team?.name||'').toLowerCase();
+          const aName=(aC.team?.displayName||aC.team?.name||'').toLowerCase();
+          const hAbbr=(hC.team?.abbreviation||'').toUpperCase();
+          const aAbbr=(aC.team?.abbreviation||'').toUpperCase();
+          const newH=parseInt(hC.score)||0;
+          const newA=parseInt(aC.score)||0;
+          const found=CDM_STATIC.find(m=>{
+            const hFR=m.home.toLowerCase();const aFR=m.away.toLowerCase();
+            return (hFR===hName||hFR.includes(hName)||hName.includes(hFR)||
+                    EN_TO_FR[hAbbr]?.toLowerCase()===hFR||FLAG_BY_ABBR[hAbbr]===m.homeFlag)&&
+                   (aFR===aName||aFR.includes(aName)||aName.includes(aFR)||
+                    EN_TO_FR[aAbbr]?.toLowerCase()===aFR||FLAG_BY_ABBR[aAbbr]===m.awayFlag);
+          });
+          if(found){
+            found.status=status;found.scoreH=newH;found.scoreA=newA;found.clock=clock;
+          }
+        });
         success=true;
-        const liveN=CDM_STATIC.filter(m=>m.status==='live').length;
-        const finN=CDM_STATIC.filter(m=>m.status==='final').length;
-        if(txt)txt.textContent=
-          liveN>0?`🔴 ${liveN} match${liveN>1?'s':''} en direct`
-          :`✅ ${finN} terminés · ${source.name}`;
-        break;
-      }catch(e){
-        // Source échouée → essaie la suivante
-        continue;
+      }
+    }catch(e){}
+
+    // Source 2 : openfootball jsdelivr (fallback)
+    if(!success){
+      for(const source of API_SOURCES){
+        try{
+          const ctrl=new AbortController();
+          setTimeout(()=>ctrl.abort(),8000);
+          const res=await fetch(source.url,{signal:ctrl.signal,cache:'no-store'});
+          if(!res.ok)continue;
+          const data=await res.json();
+          source.parse(data);
+          success=true;break;
+        }catch(e){continue;}
       }
     }
-    if(!success&&txt)txt.textContent='⚠️ Toutes les APIs indisponibles — données locales affichées';
-    buildGlobalStats();updateLiveCount();buildTopScorer();buildCountdown();renderSoccer();
+
+    const liveN=CDM_STATIC.filter(m=>m.status==='live').length;
+    const finN=CDM_STATIC.filter(m=>m.status==='final').length;
+    if(txt)txt.textContent=
+      !success?'⚠️ Données locales':
+      liveN>0?`🔴 ${liveN} match${liveN>1?'s':''} en direct`:
+      `✅ ${finN} terminés`;
+
+    checkNewGoals();
+    buildGlobalStats();updateLiveCount();buildTopScorer();renderSoccer();
     return;
   }
 
@@ -1276,9 +1269,6 @@ function renderContent(){
   if(isSoccer(lid)){
     showEl('filter-row');showEl('global-stats');showEl('top-scorer-banner');
     if(lid==='cdm'){
-      const cb=document.getElementById('refresh-countdown-bar');
-      if(cb)cb.style.display='flex';
-      buildCountdown();
     }
     buildFilterRow();buildGlobalStats();buildTopScorer();
     renderSoccer();
@@ -1368,7 +1358,7 @@ function buildTopScorer(){
           <div class="ts-label">TOP BUTEURS</div>
           <div class="ts-sublabel">Classement en direct · CDM 2026</div>
         </div>
-        <div class="ts-refresh-badge" id="ts-refresh-badge">🔄</div>
+        
       </div>
       <div class="ts-list">${rows}</div>
     </div>`;
