@@ -1308,75 +1308,75 @@ function setTabFilter(t,el){
   currentQual='all';
   document.querySelectorAll('#filter-row .fpill').forEach(x=>x.classList.remove('active'));
   if(el)el.classList.add('active');
+  // Réafficher les éléments cachés par setQualFilter
+  showEl('top-scorer-banner');showEl('global-stats');showEl('search-bar');
+  document.getElementById('search-info').textContent='';
   renderSoccer();
 }
 
 function setQualFilter(q,el){
   // Toggle : si déjà actif → revenir à Tous
   if(currentQual===q){
-    currentQual='all';
-    currentTab='all';
+    currentQual='all';currentTab='all';
     document.querySelectorAll('#filter-row .fpill').forEach(x=>x.classList.remove('active'));
     document.querySelector('#filter-row .fpill')?.classList.add('active');
+    showEl('top-scorer-banner');showEl('global-stats');showEl('search-bar');
     renderSoccer();
     return;
   }
-  currentQual=q;
-  currentTab='all';
+  currentQual=q;currentTab='all';
   document.querySelectorAll('#filter-row .fpill').forEach(x=>x.classList.remove('active'));
   if(el)el.classList.add('active');
-  // Affiche la liste des équipes selon le statut
+  // Pour qualifiés/danger/éliminés → afficher liste d'équipes (pas les cartes matchs)
+  hideEl('top-scorer-banner');hideEl('global-stats');hideEl('search-bar');
   renderTeamList(q);
 }
 
 function renderTeamList(qual){
   const ca=document.getElementById('content-area');if(!ca)return;
 
-  const QUAL_LABELS={
-    qualified:{title:'✅ Équipes qualifiées',sub:'Certaines d\'accéder aux huitièmes de finale',color:'#10b981',bg:'rgba(16,185,129,.08)'},
-    danger:{title:'⚠️ Meilleurs 3es — En ballotage',sub:'Leur qualification dépend des autres groupes',color:'#d97706',bg:'rgba(245,158,11,.08)'},
-    out:{title:'❌ Équipes éliminées',sub:'Leur parcours en CDM 2026 est terminé',color:'var(--red)',bg:'rgba(232,25,44,.06)'},
-  };
-  const cfg=QUAL_LABELS[qual];
+  const cfg={
+    qualified:{title:'✅ Équipes qualifiées pour les huitièmes',sub:'Ont terminé dans les 2 premiers de leur groupe',color:'#10b981',bg:'rgba(16,185,129,.08)',icon:'✅'},
+    danger:{title:'⚠️ Meilleurs 3es — En ballotage',sub:'Les 4 meilleurs 3es de groupe se qualifieront',color:'#d97706',bg:'rgba(245,158,11,.08)',icon:'⚠️'},
+    out:{title:'❌ Équipes éliminées',sub:'Leur Coupe du Monde 2026 est terminée',color:'var(--red)',bg:'rgba(232,25,44,.06)',icon:'❌'},
+  }[qual];
 
-  // Récupérer les équipes uniques avec leur drapeau
   const teamMap={};
   CDM_STATIC.forEach(m=>{
     if(QUAL_CDM[m.home]===qual)teamMap[m.home]=m.homeFlag;
     if(QUAL_CDM[m.away]===qual)teamMap[m.away]=m.awayFlag;
   });
-  const teams=Object.entries(teamMap);
+  const teams=Object.entries(teamMap).sort((a,b)=>a[0].localeCompare(b[0]));
 
   if(!teams.length){
     ca.innerHTML=`<div class="no-results"><div class="no-results-icon">📋</div>Aucune équipe dans cette catégorie</div>`;
     return;
   }
 
+  // Récupérer les stats depuis GROUP_STANDINGS
+  function getTeamStats(name){
+    for(const [grp,teams] of Object.entries(GROUP_STANDINGS)){
+      const t=teams.find(t=>t.team===name);
+      if(t)return{...t,group:grp};
+    }
+    return null;
+  }
+
   ca.innerHTML=`
-    <div style="background:${cfg.bg};border:1.5px solid ${cfg.color}22;border-radius:12px;padding:14px 16px;margin-bottom:14px">
+    <div style="background:${cfg.bg};border:1.5px solid ${cfg.color}44;border-radius:12px;padding:14px 16px;margin-bottom:14px">
       <div style="font-size:14px;font-weight:900;color:${cfg.color};margin-bottom:3px">${cfg.title}</div>
-      <div style="font-size:11px;color:var(--text2)">${cfg.sub}</div>
+      <div style="font-size:11px;color:var(--text2)">${cfg.sub} · ${teams.length} équipe${teams.length>1?'s':''}</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       ${teams.map(([name,flag])=>{
-        // Trouver le dernier match de cette équipe pour le score
-        const lastMatch=CDM_STATIC.filter(m=>m.status==='final'&&(m.home===name||m.away===name)).pop();
-        let scoreInfo='';
-        if(lastMatch){
-          const isHome=lastMatch.home===name;
-          const gs=isHome?lastMatch.scoreH:lastMatch.scoreA;
-          const ga=isHome?lastMatch.scoreA:lastMatch.scoreH;
-          const opp=isHome?lastMatch.away:lastMatch.home;
-          const oppFlag=isHome?lastMatch.awayFlag:lastMatch.homeFlag;
-          scoreInfo=`<div style="font-size:10px;color:var(--text2);margin-top:3px">${gs}-${ga} vs ${oppFlag} ${opp}</div>`;
-        }
-        return`<div style="background:var(--surface);border:1.5px solid ${cfg.color}44;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
-          <span style="font-size:30px;line-height:1">${flag}</span>
-          <div>
-            <div style="font-size:13px;font-weight:800;color:var(--text)">${name}</div>
-            ${scoreInfo}
+        const stats=getTeamStats(name);
+        return`<div style="background:var(--surface);border:1.5px solid ${cfg.color}44;border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)">
+          <span style="font-size:28px;line-height:1">${flag}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</div>
+            ${stats?`<div style="font-size:10px;color:var(--text2);margin-top:2px">${stats.group} · <strong>${stats.pts} pts</strong> · ${stats.gf}-${stats.ga}</div>`:''}
           </div>
-          <span style="margin-left:auto;font-size:16px">${qual==='qualified'?'✅':qual==='danger'?'⚠️':'❌'}</span>
+          <span style="font-size:16px;flex-shrink:0">${cfg.icon}</span>
         </div>`;
       }).join('')}
     </div>`;
