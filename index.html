@@ -1448,14 +1448,18 @@ function renderSoccer(){
   const matches=lid==='cdm'?CDM_STATIC:[];
   const{all:topNames}=getTopScorers();
   const q=searchQ;
+  const ca=document.getElementById('content-area');if(!ca)return;
+
+  // ── Boutons Qualifiés / En danger / Éliminés → liste d'équipes ──
+  if(currentQual!=='all'){
+    renderTeamList(currentQual, q, ca);
+    return;
+  }
 
   const statusOrder={live:0,scheduled:1,final:2};
 
   let filtered=matches.filter(m=>{
     if(currentTab!=='all'&&m.status!==currentTab)return false;
-    if(currentQual!=='all'){
-      if(QUAL_CDM[m.home]!==currentQual&&QUAL_CDM[m.away]!==currentQual)return false;
-    }
     if(q){
       const l=q.toLowerCase();
       return(m.home||'').toLowerCase().includes(l)||(m.away||'').toLowerCase().includes(l)||
@@ -1464,11 +1468,9 @@ function renderSoccer(){
     }
     return true;
   }).sort((a,b)=>{
-    // Live en premier, puis à venir, puis terminés
     const oa=statusOrder[a.status]??2;
     const ob=statusOrder[b.status]??2;
     if(oa!==ob)return oa-ob;
-    // À égalité de statut : les finaux les plus récents en haut (inverser l'ordre)
     if(a.status==='final')return matches.indexOf(b)-matches.indexOf(a);
     return matches.indexOf(a)-matches.indexOf(b);
   });
@@ -1477,21 +1479,20 @@ function renderSoccer(){
   if(sinfo)sinfo.textContent=q&&filtered.length===0?`Aucun résultat pour "${q}"`:
     q?`${filtered.length} match${filtered.length>1?'s':''} pour "${q}"` :'';
 
-  const ca=document.getElementById('content-area');if(!ca)return;
-  if(!filtered.length){ca.innerHTML=`<div class="no-results"><div class="no-results-icon">🔍</div>Aucun résultat${q?` pour "<b>${q}</b>"`:''}${currentTab!=='all'||currentQual!=='all'?'<br><small style="color:var(--text3);margin-top:8px;display:block">Essaie de réinitialiser les filtres</small>':''}</div>`;return}
+  if(!filtered.length){
+    ca.innerHTML=`<div class="no-results"><div class="no-results-icon">${currentTab==='live'?'📡':'🔍'}</div>${currentTab==='live'?'Aucun match en direct pour l\'instant':'Aucun résultat'}${currentTab!=='all'?'<br><small style="color:var(--text3);margin-top:8px;display:block">Essaie de réinitialiser les filtres</small>':''}</div>`;
+    return;
+  }
 
   const liveMatches=CDM_STATIC.filter(m=>m.status==='live');
   const liveIndicator=liveMatches.length>0
-    ?`<div class="live-indicator"><span class="dot"></span>⚡ ${liveMatches.length} match${liveMatches.length>1?'s':''} en direct — scores mis à jour toutes les 30 secondes</div>`
-    :'';
+    ?`<div class="live-indicator"><span class="dot"></span>⚡ ${liveMatches.length} match${liveMatches.length>1?'s':''} en direct</div>`:'';
 
   ca.innerHTML=liveIndicator+`<div class="matches-grid">${filtered.map((m,i)=>{
     const winner=m.status==='final'?(m.scoreH>m.scoreA?m.home:m.scoreA>m.scoreH?m.away:null):null;
     const big=m.status==='final'&&(m.scoreH+m.scoreA)>=5;
     const qH=QUAL_CDM[m.home],qA=QUAL_CDM[m.away];
     const tvB=m.tv?`<div class="tv-badge ${m.tv.cls}">📺 ${hl(m.tv.l,q)}</div>`:'';
-
-    // LOGO : clubs ont un SVG écusson, équipes nationales ont leur drapeau emoji
     const hLogo=teamLogo(m,'home');
     const aLogo=teamLogo(m,'away');
 
@@ -1501,7 +1502,116 @@ function renderSoccer(){
         ?`<div class="score">${m.scoreH}<span class="score-sep">-</span>${m.scoreA}</div>`
         :`<div class="score-upcoming"><span class="score-dash">-</span><span class="score-sep-upcoming">:</span><span class="score-dash">-</span></div>`;
 
+    const parts=(m.date||'').split(' · ');
+    const timeStr=parts[1]||'';const dayStr=parts[0]||'';
+    const topRight=m.status==='final'
+      ?`<div class="status-dot final"></div><span>Terminé · ${m.date||''}</span>`
+      :m.status==='live'
+        ?`<div class="status-dot live"></div><span>🔴 LIVE</span>`
+        :`<div class="status-dot scheduled"></div><span>${dayStr} · <strong>${timeStr}</strong></span>`;
+
     let footer='';
+    if(m.status==='final'||m.status==='live'){
+      const goals=m.goals||[];
+      if(goals.length){
+        const hGoals=goals.filter(g=>g.flag===m.homeFlag);
+        const aGoals=goals.filter(g=>g.flag===m.awayFlag);
+        const mkGoal=g=>`<div class="goal-item"><span class="goal-time">${g.t}'</span><span class="goal-flag">${g.flag||''}</span><span class="goal-scorer ${topNames.includes(g.name)?'ts':''}">${hl(g.name,q)}</span></div>`;
+        footer=`<div class="goals-2col">
+          <div class="goals-home"><div class="goals-col-label">${m.homeFlag} ${m.home}</div>${hGoals.length?hGoals.map(mkGoal).join(''):'<span class="no-goals">—</span>'}</div>
+          <div class="goals-away"><div class="goals-col-label">${m.awayFlag} ${m.away}</div>${aGoals.length?aGoals.map(mkGoal).join(''):'<span class="no-goals">—</span>'}</div>
+        </div>`;
+      } else {
+        footer=`<div style="border-top:1px solid var(--border);padding:8px 13px"><span class="no-goals">Aucun but</span></div>`;
+      }
+    } else {
+      const p=m.prob||{};
+      footer=p.home?`<div class="match-footer"><div class="proba-wrap">
+        <div class="proba-labels"><span>${m.homeFlag} ${m.home} ${p.home}%</span><span>Nul ${p.draw}%</span><span>${p.away}% ${m.away} ${m.awayFlag}</span></div>
+        <div class="proba-bar"><div class="proba-h" style="width:${p.home}%"></div><div class="proba-d" style="width:${p.draw}%"></div><div class="proba-a"></div></div>
+      </div></div>`:'';
+    }
+
+    return `<div class="match-card ${m.status} ${big?'big-score':''}" style="animation-delay:${i*.04}s;cursor:pointer" data-mid="${m.id}">
+      <div class="match-top">
+        <div class="match-top-left"><span class="comp-badge">${hl(m.comp||'',q)}</span>${tvB}</div>
+        <div class="match-top-right">${topRight}</div>
+      </div>
+      <div class="match-body">
+        <div class="team">${hLogo}<div class="team-name ${winner===m.home?'winner':''}">${hl(m.home||'',q)}</div>${qH?`<div class="qual-badge qb-${qH}">${QLABEL[qH]}</div>`:''}</div>
+        <div class="score-block">${score}</div>
+        <div class="team">${aLogo}<div class="team-name ${winner===m.away?'winner':''}">${hl(m.away||'',q)}</div>${qA?`<div class="qual-badge qb-${qA}">${QLABEL[qA]}</div>`:''}</div>
+      </div>
+      ${footer}
+    </div>`;
+  }).join('')}</div>`;
+
+  if(!ca._hasClickListener){
+    ca._hasClickListener=true;
+    ca.addEventListener('click',e=>{
+      const card=e.target.closest('[data-mid]');
+      if(card)openMatchDetail(card.dataset.mid);
+    });
+  }
+  if(currentTab==='final'&&filtered.some(m=>(m.scoreH||0)+(m.scoreA||0)>=5))confetti();
+}
+
+/* ── LISTE DES ÉQUIPES PAR STATUT ── */
+function renderTeamList(qual, q, ca){
+  const LABELS={
+    qualified:{title:'✅ Équipes qualifiées',sub:'Passent au tour suivant',color:'#10b981',bg:'rgba(16,185,129,.08)'},
+    danger:{title:'⚠️ Meilleurs 3es',sub:'En attente — peuvent encore se qualifier',color:'#d97706',bg:'rgba(245,158,11,.08)'},
+    out:{title:'❌ Équipes éliminées',sub:'Phase de groupes terminée',color:'var(--red)',bg:'rgba(232,25,44,.06)'}
+  };
+  const info=LABELS[qual];
+
+  // Récupérer les équipes avec leur groupe et stats
+  const teams=Object.entries(QUAL_CDM)
+    .filter(([,v])=>v===qual)
+    .map(([name])=>{
+      const flag=CDM_STATIC.find(m=>m.home===name)?.homeFlag||CDM_STATIC.find(m=>m.away===name)?.awayFlag||'🏳️';
+      const group=CDM_STATIC.find(m=>m.home===name||m.away===name)?.comp||'';
+      // Stats : buts marqués/encaissés
+      let gf=0,ga=0,pts=0,p=0;
+      CDM_STATIC.filter(m=>m.status==='final'&&(m.home===name||m.away===name)).forEach(m=>{
+        const isHome=m.home===name;
+        gf+=isHome?m.scoreH:m.scoreA;
+        ga+=isHome?m.scoreA:m.scoreH;
+        const w=isHome?m.scoreH>m.scoreA:m.scoreA>m.scoreH;
+        const d=m.scoreH===m.scoreA;
+        pts+=w?3:d?1:0;p++;
+      });
+      return{name,flag,group,gf,ga,diff:gf-ga,pts,p};
+    })
+    .filter(t=>!q||t.name.toLowerCase().includes(q.toLowerCase()))
+    .sort((a,b)=>b.pts-a.pts||b.diff-a.diff);
+
+  if(!teams.length){
+    ca.innerHTML=`<div class="no-results"><div class="no-results-icon">🔍</div>Aucune équipe trouvée</div>`;
+    return;
+  }
+
+  ca.innerHTML=`
+    <div style="background:${info.bg};border:1.5px solid ${info.color};border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+      <div style="font-size:22px">${info.title.split(' ')[0]}</div>
+      <div><div style="font-size:13px;font-weight:800;color:${info.color}">${info.title.slice(2)}</div><div style="font-size:10px;color:var(--text2);margin-top:2px">${info.sub} · ${teams.length} équipe${teams.length>1?'s':''}</div></div>
+    </div>
+    <div style="display:grid;gap:8px">
+      ${teams.map((t,i)=>`
+        <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);animation:cardIn .3s ease ${i*.04}s both">
+          <span style="font-size:22px;min-width:28px;text-align:center">${['🥇','🥈','🥉'][i]||`${i+1}`}</span>
+          <span style="font-size:26px">${t.flag}</span>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:800;color:var(--text)">${t.name}</div>
+            <div style="font-size:10px;color:var(--text2);margin-top:2px">${t.group}</div>
+          </div>
+          <div style="text-align:right;font-size:11px;color:var(--text2)">
+            <div style="font-weight:900;font-size:16px;color:${info.color}">${t.pts} pts</div>
+            <div>${t.p} matchs · ${t.gf} bp · ${t.ga} bc · diff ${t.diff>0?'+':''}${t.diff}</div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
     if(m.status==='final'||m.status==='live'){
       const goals=m.goals||[];
       if(goals.length){
@@ -1527,51 +1637,7 @@ function renderSoccer(){
         <div class="proba-labels"><span>${m.homeFlag} ${m.home} ${p.home}%</span><span>Nul ${p.draw}%</span><span>${p.away}% ${m.away} ${m.awayFlag}</span></div>
         <div class="proba-bar"><div class="proba-h" style="width:${p.home}%"></div><div class="proba-d" style="width:${p.draw}%"></div><div class="proba-a"></div></div>
       </div></div>`:'';
-    }
 
-    // Heure affichée dans le top-bar pour les matchs à venir
-    const parts=(m.date||'').split(' · ');
-    const timeStr=parts[1]||'';
-    const dayStr=parts[0]||'';
-    const topRight=m.status==='final'
-      ?`<div class="status-dot final"></div><span>Terminé · ${m.date||''}</span>`
-      :m.status==='live'
-        ?`<div class="status-dot live"></div><span>🔴 LIVE</span>`
-        :`<div class="status-dot scheduled"></div><span>${dayStr} · <strong>${timeStr}</strong></span>`;
-
-    return `<div class="match-card ${m.status} ${big?'big-score':''}" style="animation-delay:${i*.04}s;cursor:pointer" data-mid="${m.id}">
-      <div class="match-top">
-        <div class="match-top-left"><span class="comp-badge">${hl(m.comp||'',q)}</span>${tvB}</div>
-        <div class="match-top-right">${topRight}</div>
-      </div>
-      <div class="match-body">
-        <div class="team">
-          ${hLogo}
-          <div class="team-name ${winner===m.home?'winner':''}">${hl(m.home||'',q)}</div>
-          ${qH?`<div class="qual-badge qb-${qH}">${QLABEL[qH]}</div>`:''}
-        </div>
-        <div class="score-block">${score}</div>
-        <div class="team">
-          ${aLogo}
-          <div class="team-name ${winner===m.away?'winner':''}">${hl(m.away||'',q)}</div>
-          ${qA?`<div class="qual-badge qb-${qA}">${QLABEL[qA]}</div>`:''}
-        </div>
-      </div>
-      ${footer}
-    </div>`;
-  }).join('')}</div>`;
-
-  // Event delegation — clic sur une carte ouvre le détail
-  const grid=document.getElementById('content-area');
-  if(grid&&!grid._hasClickListener){
-    grid._hasClickListener=true;
-    grid.addEventListener('click',e=>{
-      const card=e.target.closest('[data-mid]');
-      if(card)openMatchDetail(card.dataset.mid);
-    });
-  }
-
-  if(currentTab==='final'&&filtered.some(m=>(m.scoreH||0)+(m.scoreA||0)>=5))confetti();
 }
 
 /* ── RENDER GENERIC ── */
