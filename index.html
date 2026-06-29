@@ -632,11 +632,39 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var
 ══════════════════════════════════════ */
 const ADMIN_EMAIL='armand@admin.cdm';
 const ADMIN_PASS='Admin2026!';
-const getUsers=()=>JSON.parse(localStorage.getItem('sl_users')||'[]');
-const saveUsers=u=>localStorage.setItem('sl_users',JSON.stringify(u));
-const getSession=()=>JSON.parse(localStorage.getItem('sl_session')||'null');
-const saveSession=s=>localStorage.setItem('sl_session',JSON.stringify(s));
-const clearSession=()=>localStorage.removeItem('sl_session');
+const getUsers=()=>{
+  try{
+    const u=localStorage.getItem('sl_users');
+    if(u)return JSON.parse(u);
+    // Fallback sessionStorage
+    const s=sessionStorage.getItem('sl_users');
+    if(s){const d=JSON.parse(s);localStorage.setItem('sl_users',s);return d;}
+    return[];
+  }catch(e){return[];}
+}
+const saveUsers=u=>{
+  const s=JSON.stringify(u);
+  try{localStorage.setItem('sl_users',s);}catch(e){}
+  try{sessionStorage.setItem('sl_users',s);}catch(e){}
+}
+const getSession=()=>{
+  try{
+    const s=localStorage.getItem('sl_session');
+    if(s)return JSON.parse(s);
+    const ss=sessionStorage.getItem('sl_session');
+    if(ss){const d=JSON.parse(ss);localStorage.setItem('sl_session',ss);return d;}
+    return null;
+  }catch(e){return null;}
+}
+const saveSession=s=>{
+  const j=JSON.stringify(s);
+  try{localStorage.setItem('sl_session',j);}catch(e){}
+  try{sessionStorage.setItem('sl_session',j);}catch(e){}
+}
+const clearSession=()=>{
+  try{localStorage.removeItem('sl_session');}catch(e){}
+  try{sessionStorage.removeItem('sl_session');}catch(e){}
+}
 
 function showScreen(name){
   ['login','register','admin','app'].forEach(s=>{
@@ -658,9 +686,16 @@ function doLogin(){
   const pw=document.getElementById('login-pwd').value;
   if(!em||!pw){showMsg('login-msg','Remplis tous les champs.','error');return}
   if(em===ADMIN_EMAIL&&pw===ADMIN_PASS){saveSession({email:em,role:'admin',name:'Admin'});showScreen('admin');return}
-  const u=getUsers().find(u=>u.email===em);
-  if(!u){showMsg('login-msg','Aucun compte trouvé.','error');return}
-  if(u.hash!==hashPass(pw)){showMsg('login-msg','Mot de passe incorrect.','error');return}
+  const users=getUsers();
+  const u=users.find(u=>u.email===em);
+  if(!u){
+    showMsg('login-msg','Email non trouvé. Crée un compte ou vérifie ton email.','error');
+    return;
+  }
+  if(u.hash!==hashPass(pw)){
+    showMsg('login-msg','Mot de passe incorrect.','error');
+    return;
+  }
   if(u.status==='rejected'){showMsg('login-msg','Accès refusé. Contacte l\'admin.','error');return}
   saveSession({email:em,role:'user',name:u.firstname+' '+u.lastname,country:u.country});
   showScreen('app');
