@@ -644,7 +644,7 @@ function showScreen(name){
     if(el)el.style.display=s===name?(s==='app'?'block':''):'none';
   });
   if(name==='admin')renderAdminList('pending');
-  if(name==='app')initApp();
+  if(name==='app')requestAnimationFrame(()=>requestAnimationFrame(()=>initApp()));
 }
 function showMsg(id,txt,type){
   const el=document.getElementById(id);
@@ -963,7 +963,11 @@ function initApp(){
   startLiveTimer();
   buildCDMSidebarExtras();
   requestNotifPermission();
-  loadLeague('cdm','Coupe du Monde 2026',document.getElementById('nav-cdm'));
+  // Petit délai pour que le DOM soit bien rendu avant d'injecter les matchs
+  setTimeout(()=>{
+    loadLeague('cdm','Coupe du Monde 2026',document.getElementById('nav-cdm'));
+    refreshData();
+  },100);
 }
 
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebar-overlay').classList.toggle('open')}
@@ -1070,7 +1074,7 @@ function parseOpenFootball(data){
     });
 
     if(found){
-      found.status=status;
+      if(found.status!=='final')found.status=status;
       if(ft){found.scoreH=ft[0];found.scoreA=ft[1];}
       const goals1=(m.goals1||[]).map(g=>({t:g.minute||'?',flag:found.homeFlag,name:g.name}));
       const goals2=(m.goals2||[]).map(g=>({t:g.minute||'?',flag:found.awayFlag,name:g.name}));
@@ -1091,7 +1095,7 @@ function parseWorldcup26(data){
     const status=g.status==='FINISHED'||g.finished?'final':g.status==='IN_PLAY'?'live':'scheduled';
     const found=CDM_STATIC.find(s=>s.home.toLowerCase()===homeFR.toLowerCase()&&s.away.toLowerCase()===awayFR.toLowerCase());
     if(found){
-      found.status=status;
+      if(found.status!=='final')found.status=status;
       if(hScore!==null){found.scoreH=parseInt(hScore)||0;found.scoreA=parseInt(aScore)||0;}
     }
   });
@@ -1135,7 +1139,13 @@ async function fetchLiveScores(){
                     EN_TO_FR[aAbbr]?.toLowerCase()===aFR||FLAG_BY_ABBR[aAbbr]===m.awayFlag);
           });
           if(found){
-            found.status=status;found.scoreH=newH;found.scoreA=newA;found.clock=clock;
+            // Ne jamais rétrograder un match déjà final dans nos données
+            if(found.status !== 'final'){
+              found.status=status;
+            }
+            found.scoreH=newH;
+            found.scoreA=newA;
+            found.clock=clock;
           }
         });
         success=true;
