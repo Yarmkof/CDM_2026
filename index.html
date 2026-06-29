@@ -347,27 +347,6 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var
 <div id="confetti-container" class="confetti-container"></div>
 
 
-<div id="screen-admin" style="display:none">
-  <div class="admin-wrap">
-    <div class="admin-header">
-      <span style="font-size:22px">⚙️</span>
-      <h1>Panel Admin</h1>
-      <span class="badge-admin">ADMIN</span>
-      <button class="btn-logout-admin" onclick="doLogout()">Déconnexion</button>
-    </div>
-    <div class="admin-stats" id="admin-stats"></div>
-    <div class="atabs">
-      <div class="atab active" onclick="aTab('pending',this)">⏳ En attente <span class="nbadge" id="np">0</span></div>
-      <div class="atab" onclick="aTab('approved',this)">✅ Approuvés</div>
-      <div class="atab" onclick="aTab('rejected',this)">❌ Refusés</div>
-    </div>
-    <div id="admin-list"></div>
-    <div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--border)">
-      <button class="btn-primary" onclick="showScreen('app')" style="max-width:200px">▶ Accéder à SportsLive</button>
-    </div>
-  </div>
-</div>
-
 <!-- APP -->
 <!-- MODAL DÉTAIL MATCH -->
 <div id="match-modal" class="match-modal" onclick="if(event.target===this)closeMatchDetail()">
@@ -572,50 +551,16 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var
 </div>
 
 <script>
-/* ══════════════════════════════════════
-   AUTH
-══════════════════════════════════════ */
-const ADMIN_EMAIL='armand@admin.cdm';
-const ADMIN_PASS='Admin2026!';
-const getUsers=()=>{
-  try{
-    const u=localStorage.getItem('sl_users');
-    if(u)return JSON.parse(u);
-    // Fallback sessionStorage
-    const s=sessionStorage.getItem('sl_users');
-    if(s){const d=JSON.parse(s);localStorage.setItem('sl_users',s);return d;}
-    return[];
-  }catch(e){return[];}
-}
-const saveUsers=u=>{
-  const s=JSON.stringify(u);
-  try{localStorage.setItem('sl_users',s);}catch(e){}
-  try{sessionStorage.setItem('sl_users',s);}catch(e){}
-}
-const getSession=()=>{
-  try{
-    const s=localStorage.getItem('sl_session');
-    if(s)return JSON.parse(s);
-    const ss=sessionStorage.getItem('sl_session');
-    if(ss){const d=JSON.parse(ss);localStorage.setItem('sl_session',ss);return d;}
-    return null;
-  }catch(e){return null;}
-}
-const saveSession=s=>{
-  const j=JSON.stringify(s);
-  try{localStorage.setItem('sl_session',j);}catch(e){}
-  try{sessionStorage.setItem('sl_session',j);}catch(e){}
-}
-const clearSession=()=>{
-  try{localStorage.removeItem('sl_session');}catch(e){}
-  try{sessionStorage.removeItem('sl_session');}catch(e){}
-}
+/* ═══════════════════════════════
+   SportsLive — Accès direct
+═══════════════════════════════ */
 
 function showScreen(name){
-  const el=document.getElementById('screen-app');
-  if(el)el.style.display='block';
+  const el=document.getElementById("screen-app");
+  if(el)el.style.display="block";
   setTimeout(initApp,50);
 }
+
 function showMsg(id,txt,type){
   const el=document.getElementById(id);
   el.textContent=txt;el.className='auth-msg '+type;el.style.display='block';
@@ -623,86 +568,11 @@ function showMsg(id,txt,type){
 }
 function hashPass(p){let h=0;for(let i=0;i<p.length;i++)h=Math.imul(31,h)+p.charCodeAt(i)|0;return h.toString(36)+'_'+p.length}
 
-function doLogin(){
-  const em=document.getElementById('login-email').value.trim().toLowerCase();
-  const pw=document.getElementById('login-pwd').value;
-  if(!em||!pw){showMsg('login-msg','Remplis tous les champs.','error');return}
-  if(em===ADMIN_EMAIL&&pw===ADMIN_PASS){saveSession({email:em,role:'admin',name:'Admin'});showScreen('admin');return}
-  const users=getUsers();
-  const u=users.find(u=>u.email===em);
-  if(!u){
-    showMsg('login-msg','Email non trouvé. Crée un compte ou vérifie ton email.','error');
-    return;
-  }
-  if(u.hash!==hashPass(pw)){
-    showMsg('login-msg','Mot de passe incorrect.','error');
-    return;
-  }
-  if(u.status==='rejected'){showMsg('login-msg','Accès refusé. Contacte l\'admin.','error');return}
-  saveSession({email:em,role:'user',name:u.firstname+' '+u.lastname,country:u.country});
-  showScreen('app');
-}
-function doRegister(){
-  const fn=document.getElementById('reg-fn').value.trim();
-  const ln=document.getElementById('reg-ln').value.trim();
-  const em=document.getElementById('reg-em').value.trim().toLowerCase();
-  const pw=document.getElementById('reg-pw').value;
-  const co=document.getElementById('reg-co').value;
-  if(!fn||!ln||!em||!pw||!co){showMsg('reg-msg','Remplis tous les champs.','error');return}
-  if(pw.length<6){showMsg('reg-msg','Mot de passe trop court (min. 6 caractères).','error');return}
-  if(!/\S+@\S+\.\S+/.test(em)){showMsg('reg-msg','Email invalide.','error');return}
-  const users=getUsers();
-  if(users.find(u=>u.email===em)){showMsg('reg-msg','Email déjà utilisé.','error');return}
-  users.push({id:Date.now().toString(36),firstname:fn,lastname:ln,email:em,hash:hashPass(pw),country:co,status:'approved',createdAt:new Date().toISOString()});
-  saveUsers(users);
-  saveSession({email:em,role:'user',name:fn+' '+ln,country:co});
-  // Incrémente le compteur en ligne
-  fetch('https://abacus.jasoncameron.dev/hit/sportslive-yarmkof/members').catch(()=>{});
-  showMsg('reg-msg','Compte créé ! Bienvenue 🎉','success');
-  setTimeout(()=>showScreen('app'),900);
-}
-function doLogout(){clearSession();showScreen('login')}
 
-/* ADMIN */
-let adminTab_='pending';
-function aTab(t,el){adminTab_=t;document.querySelectorAll('.atab').forEach(x=>x.classList.remove('active'));el.classList.add('active');renderAdminList(t)}
-function renderAdminStats(){
-  const u=getUsers();const p=u.filter(x=>x.status==='pending').length;const a=u.filter(x=>x.status==='approved').length;
-  const nb=document.getElementById('np');if(nb)nb.textContent=p;
-  const as=document.getElementById('admin-stats');
-  if(as)as.innerHTML=`
-    <div class="astat"><div class="astat-val">${u.length}</div><div class="astat-label">Sur cet appareil</div></div>
-    <div class="astat"><div class="astat-val" style="color:var(--green)">${a}</div><div class="astat-label">Approuvés</div></div>
-    <div class="astat"><div class="astat-val" id="global-count" style="color:var(--purple)">…</div><div class="astat-label">Total inscrits 🌍</div></div>`;
-  // Charge le compteur global
-  fetch('https://abacus.jasoncameron.dev/get/sportslive-yarmkof/members')
-    .then(r=>r.json())
-    .then(d=>{ const el=document.getElementById('global-count'); if(el)el.textContent=d.value||'0'; })
-    .catch(()=>{ const el=document.getElementById('global-count'); if(el)el.textContent='—'; });
-}
-function renderAdminList(tab){
-  renderAdminStats();
-  const users=getUsers().filter(u=>u.status===tab);
-  const c=document.getElementById('admin-list');if(!c)return;
-  if(!users.length){c.innerHTML=`<div class="empty-st">📭 Aucun utilisateur ici</div>`;return}
-  c.innerHTML=users.map(u=>`<div class="user-card"><div class="uavatar">${u.firstname[0]}${u.lastname[0]}</div><div class="uinfo"><div class="uname">${u.firstname} ${u.lastname}</div><div class="umeta">${u.email} · ${u.country} · ${new Date(u.createdAt).toLocaleDateString('fr-FR')}</div></div><span class="ustatus st-${u.status}">${u.status==='pending'?'⏳':u.status==='approved'?'✅':'❌'}</span><div class="uactions">${u.status!=='approved'?`<button class="btn-ok" onclick="updUser('${u.id}','approved')">✅</button>`:''} ${u.status!=='rejected'?`<button class="btn-no" onclick="updUser('${u.id}','rejected')">❌</button>`:''}<button class="btn-del" onclick="delUser('${u.id}')">🗑</button></div></div>`).join('');
-}
-function updUser(id,s){const u=getUsers();const x=u.find(u=>u.id===id);if(x){x.status=s;saveUsers(u);renderAdminList(adminTab_)}}
-function delUser(id){if(!confirm('Supprimer ?'))return;saveUsers(getUsers().filter(u=>u.id!==id));renderAdminList(adminTab_)}
 
-/* ══════════════════════════════════════
-   DONNÉES
-══════════════════════════════════════ */
 
-/* Drapeaux emoji par code ISO */
-const FLAGS={
-  FR:'🇫🇷',GB:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',DE:'🇩🇪',ES:'🇪🇸',IT:'🇮🇹',PT:'🇵🇹',NL:'🇳🇱',BE:'🇧🇪',
-  AR:'🇦🇷',BR:'🇧🇷',UY:'🇺🇾',US:'🇺🇸',CA:'🇨🇦',MX:'🇲🇽',MA:'🇲🇦',SN:'🇸🇳',TN:'🇹🇳',
-  DZ:'🇩🇿',CM:'🇨🇲',CI:'🇨🇮',GH:'🇬🇭',NG:'🇳🇬',EG:'🇪🇬',ZA:'🇿🇦',CD:'🇨🇩',
-  JP:'🇯🇵',KR:'🇰🇷',AU:'🇦🇺',NZ:'🇳🇿',CN:'🇨🇳',IR:'🇮🇷',SA:'🇸🇦',
-  CH:'🇨🇭',AT:'🇦🇹',SE:'🇸🇪',NO:'🇳🇴',DK:'🇩🇰',PL:'🇵🇱',CZ:'🇨🇿',GR:'🇬🇷',
-  TR:'🇹🇷',HR:'🇭🇷',RS:'🇷🇸',PA:'🇵🇦',CO:'🇨🇴',CV:'🇨🇻',IQ:'🇮🇶',UZ:'🇺🇿',JO:'🇯🇴',PY:'🇵🇾'
-};
+
+;
 
 /* Logos clubs via logo.clearbit ou shield wikipedia — utilise un SVG générique coloré par club */
 const CLUB_COLORS={
