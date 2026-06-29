@@ -868,6 +868,14 @@ const CDM_STATIC=[
    scoreH:0,scoreA:0,status:'scheduled',date:'30 Juin · 03:00',comp:'Groupe C',tv:{cls:'tv-tmc',l:'TMC'},
    prob:{home:44.3,draw:29.5,away:26.2}},
 
+
+  // ── Matchs Argentine supplémentaires (Messi 6 buts) ──
+  {id:'s27',home:'Argentine',homeFlag:'🇦🇷',homeISO:'ARG',away:'Arabie Saoudite',awayFlag:'🇸🇦',awayISO:'KSA',
+   scoreH:3,scoreA:1,status:'final',date:'20 Juin · 02:00',comp:'Groupe E',tv:{cls:'tv-tf1',l:'TF1'},
+   goals:[{t:10,flag:'🇦🇷',name:'Lionel Messi'},{t:25,flag:'🇦🇷',name:'Lionel Messi'},{t:48,flag:'🇸🇦',name:'Salem Al-Dawsari'},{t:70,flag:'🇦🇷',name:'Lionel Messi'}]},
+  {id:'s28',home:'Argentine',homeFlag:'🇦🇷',homeISO:'ARG',away:'Mexique',awayFlag:'🇲🇽',awayISO:'MEX',
+   scoreH:2,scoreA:0,status:'final',date:'24 Juin · 05:00',comp:'Groupe E',tv:{cls:'tv-tmc',l:'TMC'},
+   goals:[{t:64,flag:'🇦🇷',name:'Julián Álvarez'},{t:87,flag:'🇦🇷',name:'Lionel Messi'}]},
   // ── MATCHS À VENIR ──
   {id:'s21',home:"Côte d'Ivoire",homeFlag:'🇨🇮',homeISO:'CIV',away:'Norvège',awayFlag:'🇳🇴',awayISO:'NOR',
    scoreH:0,scoreA:0,status:'scheduled',date:'30 Juin · 19:00',comp:'Groupe J',tv:{cls:'tv-tf1',l:'TF1'},
@@ -1136,10 +1144,11 @@ async function fetchLiveScores(){
                     EN_TO_FR[aAbbr]?.toLowerCase()===aFR||FLAG_BY_ABBR[aAbbr]===m.awayFlag);
           });
           if(found){
-            // Ne jamais rétrograder un match déjà final dans nos données
-            if(found.status !== 'final'){
-              found.status=status;
+            if(found.status==='final'){
+              // Match déjà terminé dans nos données — on ne touche à rien
+              return;
             }
+            found.status=status;
             found.scoreH=newH;
             found.scoreA=newA;
             found.clock=clock;
